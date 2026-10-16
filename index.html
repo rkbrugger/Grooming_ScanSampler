@@ -178,13 +178,21 @@
   .scan-read .of-scan{font-size:11px; color:var(--ink-faint); font-weight:600; margin-top:2px}
   .scan-nav{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
   .scan-counts{margin-top:14px; border-top:1px dashed var(--line); padding-top:13px}
-  .counts-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:10px}
-  @media (max-width:720px){ .counts-grid{grid-template-columns:repeat(3,1fr)} }
-  @media (max-width:420px){ .counts-grid{grid-template-columns:repeat(2,1fr)} }
+  .meta-row{display:flex; gap:14px; flex-wrap:wrap}
   .cfield{display:flex; flex-direction:column; gap:4px}
   .cfield > span{font-size:11px; letter-spacing:.01em; color:var(--ink-faint); font-weight:600; line-height:1.2}
-  .cfield input{width:100%; font-family:var(--mono); font-weight:600; text-align:center}
-  .reconcile{margin-top:11px; font-size:13px; color:var(--ink-soft)}
+  .cfield input{width:120px; font-family:var(--mono); font-weight:600; text-align:center}
+  .act-cap{font-size:11px; letter-spacing:.02em; text-transform:uppercase; color:var(--ink-faint); font-weight:600; margin:14px 0 8px}
+  .act-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+  @media (max-width:560px){ .act-grid{grid-template-columns:repeat(2,1fr)} }
+  .actbtn{position:relative; cursor:pointer; user-select:none; border:1.5px solid var(--line); background:var(--raise); border-radius:12px; padding:12px 12px 11px; display:flex; flex-direction:column; gap:5px; align-items:flex-start; transition:transform .06s ease, border-color .12s ease, background .12s ease}
+  .actbtn:hover{border-color:var(--line-strong)}
+  .actbtn:active{transform:translateY(1px) scale(.995)}
+  .actbtn .al{font-size:12.5px; font-weight:600; color:var(--ink-soft); line-height:1.15; padding-right:28px}
+  .actbtn .av{font-family:var(--mono); font-size:30px; font-weight:600; line-height:1; letter-spacing:-.02em}
+  .actbtn .adec{position:absolute; top:8px; right:8px; width:28px; height:28px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); font-size:17px; line-height:1; cursor:pointer; display:grid; place-items:center}
+  .actbtn .adec:hover{border-color:var(--danger); color:var(--danger)}
+  .reconcile{margin-top:12px; font-size:13px; color:var(--ink-soft)}
   .reconcile b{font-family:var(--mono); color:var(--ink)}
   .reconcile.over{color:var(--danger)} .reconcile.over b{color:var(--danger)}
 
@@ -594,7 +602,7 @@ function renderRecord(){
   const maxScan = s.maxScan || s.currentScan;
   const scanEvents = s.events.filter(e=>e.scan===k);
   const act = (s.scanAct && s.scanAct[k]) || {};
-  const actVal = key => (act[key]!=null && act[key]!=="") ? act[key] : "";
+  const actCount = key => parseInt(act[key],10)||0;
   const oovVal = (s.scanOOV && s.scanOOV[k]!=null && s.scanOOV[k]!=="") ? s.scanOOV[k] : "";
   const groomIndiv = scanEvents.reduce((a,e)=> a + (e.type==="dyadic"?2:(parseInt(e.size,10)||0)), 0);
   const actSum = ["rest","aggr","forage","other"].reduce((a,key)=> a + (parseInt(act[key],10)||0), 0);
@@ -638,19 +646,30 @@ function renderRecord(){
       </div>
 
       <div class="scan-counts">
-        <div class="counts-grid">
+        <div class="meta-row">
           <label class="cfield"><span>Group N today</span>
             <input type="number" min="0" step="1" inputmode="numeric" data-session-n value="${s.groupN!=null?s.groupN:""}" placeholder="—"></label>
           <label class="cfield"><span>Not in view</span>
             <input type="number" min="0" step="1" inputmode="numeric" data-scan-oov value="${oovVal}" placeholder="0"></label>
-          <label class="cfield"><span>Resting</span>
-            <input type="number" min="0" step="1" inputmode="numeric" data-scan-act="rest" value="${actVal("rest")}" placeholder="0"></label>
-          <label class="cfield"><span>Aggression</span>
-            <input type="number" min="0" step="1" inputmode="numeric" data-scan-act="aggr" value="${actVal("aggr")}" placeholder="0"></label>
-          <label class="cfield"><span>Foraging / feeding</span>
-            <input type="number" min="0" step="1" inputmode="numeric" data-scan-act="forage" value="${actVal("forage")}" placeholder="0"></label>
-          <label class="cfield"><span>Other</span>
-            <input type="number" min="0" step="1" inputmode="numeric" data-scan-act="other" value="${actVal("other")}" placeholder="0"></label>
+        </div>
+        <div class="act-cap">Animals per behaviour this scan — tap to add one, &minus; to correct</div>
+        <div class="act-grid">
+          <div class="actbtn" data-action="act-inc" data-key="rest" role="button" tabindex="0">
+            <span class="al">Resting</span><span class="av">${actCount("rest")}</span>
+            <button class="adec" data-action="act-dec" data-key="rest" aria-label="Remove one resting">&minus;</button>
+          </div>
+          <div class="actbtn" data-action="act-inc" data-key="aggr" role="button" tabindex="0">
+            <span class="al">Aggression</span><span class="av">${actCount("aggr")}</span>
+            <button class="adec" data-action="act-dec" data-key="aggr" aria-label="Remove one aggression">&minus;</button>
+          </div>
+          <div class="actbtn" data-action="act-inc" data-key="forage" role="button" tabindex="0">
+            <span class="al">Foraging / feeding</span><span class="av">${actCount("forage")}</span>
+            <button class="adec" data-action="act-dec" data-key="forage" aria-label="Remove one foraging">&minus;</button>
+          </div>
+          <div class="actbtn" data-action="act-inc" data-key="other" role="button" tabindex="0">
+            <span class="al">Other</span><span class="av">${actCount("other")}</span>
+            <button class="adec" data-action="act-dec" data-key="other" aria-label="Remove one other">&minus;</button>
+          </div>
         </div>
         <div class="reconcile ${(inView!=null && accounted>inView)?"over":""}">
           Grooming now: <b>${groomIndiv}</b> indiv.${inView!=null?` &nbsp;·&nbsp; Accounted (states + grooming): <b>${accounted}</b> of <b>${inView}</b> in view`+(accounted===inView?" ✓":(accounted>inView?" — exceeds in-view!":` — ${inView-accounted} unaccounted`)):""}
@@ -1239,6 +1258,10 @@ document.addEventListener("click", e=>{
     case "next-scan": nextScan(); break;
     case "prev-scan": prevScan(); break;
     case "clear-scan": clearScan(); break;
+    case "act-inc": { const s=curSession(); if(s){ const key=el.dataset.key; if(!s.scanAct) s.scanAct={}; if(!s.scanAct[s.currentScan]) s.scanAct[s.currentScan]={};
+      s.scanAct[s.currentScan][key]=(parseInt(s.scanAct[s.currentScan][key],10)||0)+1; save(); render(); } break; }
+    case "act-dec": { const s=curSession(); if(s){ const key=el.dataset.key; const sc=s.scanAct&&s.scanAct[s.currentScan];
+      if(sc){ const v=(parseInt(sc[key],10)||0)-1; if(v<=0) delete sc[key]; else sc[key]=v; save(); render(); } } break; }
     case "sess-toggle": { const s=curSession(); if(s){ if(s.runningSince) sessPause(s); else sessResume(s); save(); render(); } break; }
     case "census-edit": censusEdit[el.dataset.phase]=true; render(); break;
     case "census-done": censusEdit[el.dataset.phase]=false; render(); break;
@@ -1319,11 +1342,6 @@ document.addEventListener("change", e=>{
   const oov = e.target.closest("[data-scan-oov]");
   if(oov){ const s=curSession(); if(s){ const v=oov.value.trim(); if(!s.scanOOV) s.scanOOV={};
     if(v==="") delete s.scanOOV[s.currentScan]; else s.scanOOV[s.currentScan]=Math.max(0,parseInt(v,10)||0);
-    save(); render(); } return; }
-  const actEl = e.target.closest("[data-scan-act]");
-  if(actEl){ const s=curSession(); if(s){ const key=actEl.dataset.scanAct, v=actEl.value.trim();
-    if(!s.scanAct) s.scanAct={}; if(!s.scanAct[s.currentScan]) s.scanAct[s.currentScan]={};
-    if(v==="") delete s.scanAct[s.currentScan][key]; else s.scanAct[s.currentScan][key]=Math.max(0,parseInt(v,10)||0);
     save(); render(); } return; }
   const cen = e.target.closest("input[data-census]");
   if(cen){ const s=curSession(); if(s){ const arr=s.census[cen.dataset.census].sizes; arr[+cen.dataset.idx]=Math.max(1,parseInt(cen.value,10)||1); save(); render(); } return; }
