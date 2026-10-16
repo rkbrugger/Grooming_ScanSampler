@@ -174,14 +174,19 @@
   .stepper .sv{font-family:var(--mono); font-weight:600; min-width:32px; text-align:center; font-size:16px}
   .szcell{max-width:76px; min-width:60px; text-align:center; font-family:var(--mono); font-weight:600}
 
-  /* Per-scan count fields */
-  .counts-row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-top:4px}
+  /* Scan navigation + per-scan count fields */
+  .scan-read .of-scan{font-size:11px; color:var(--ink-faint); font-weight:600; margin-top:2px}
+  .scan-nav{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+  .scan-counts{margin-top:14px; border-top:1px dashed var(--line); padding-top:13px}
+  .counts-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:10px}
+  @media (max-width:720px){ .counts-grid{grid-template-columns:repeat(3,1fr)} }
+  @media (max-width:420px){ .counts-grid{grid-template-columns:repeat(2,1fr)} }
   .cfield{display:flex; flex-direction:column; gap:4px}
-  .cfield > span{font-size:11px; letter-spacing:.02em; color:var(--ink-faint); font-weight:600}
-  .cfield input{width:104px; font-family:var(--mono); font-weight:600; text-align:center}
-  .cfield.inview{align-items:flex-start}
-  .cfield.inview b{font-family:var(--mono); font-size:22px; line-height:1; color:var(--dyadic)}
-  .cfield.inview .of{font-size:11px; color:var(--ink-faint); font-weight:600; margin-top:1px}
+  .cfield > span{font-size:11px; letter-spacing:.01em; color:var(--ink-faint); font-weight:600; line-height:1.2}
+  .cfield input{width:100%; font-family:var(--mono); font-weight:600; text-align:center}
+  .reconcile{margin-top:11px; font-size:13px; color:var(--ink-soft)}
+  .reconcile b{font-family:var(--mono); color:var(--ink)}
+  .reconcile.over{color:var(--danger)} .reconcile.over b{color:var(--danger)}
 
   /* Species / group / institution editor */
   .sp-block{border:1px solid var(--line); border-radius:12px; padding:13px 13px 11px; margin-bottom:12px; background:var(--raise)}
@@ -451,6 +456,8 @@ function normSession(s){
   if(s.institution===undefined) s.institution="";
   if(s.groupN===undefined) s.groupN=null;
   if(!s.scanOOV || typeof s.scanOOV!=="object") s.scanOOV={};
+  if(!s.scanAct || typeof s.scanAct!=="object") s.scanAct={};
+  if(s.maxScan==null) s.maxScan = s.currentScan || 1;
   if(!s.startedAt) s.startedAt = (s.events[0] && s.events[0].time) || nowISO();
   if(!s.census) s.census = {start:{sizes:[],time:null}, end:{sizes:[],time:null}};
   if(!s.census.start) s.census.start = {sizes:[],time:null};
@@ -470,7 +477,7 @@ function totals(sess){
       else { cl++; if(n>=3){ clSum+=n; clN++; } }
     }
   });
-  return {dyadic:dy, cluster:cl, chain:ch, polyadic:cl+ch, events:sess.events.length, scans:sess.currentScan, clSum, clN, chSum, chN};
+  return {dyadic:dy, cluster:cl, chain:ch, polyadic:cl+ch, events:sess.events.length, scans:(sess.maxScan||sess.currentScan), clSum, clN, chSum, chN};
 }
 function groupSummary(){
   const map = new Map();
@@ -505,8 +512,26 @@ function removeEvent(id){
 }
 function nextScan(){
   const s = curSession(); if(!s) return;
-  s.currentScan++; save(); render();
-  toast("Scan "+s.currentScan+" started");
+  s.currentScan++;
+  if(s.maxScan==null || s.currentScan>s.maxScan) s.maxScan = s.currentScan;
+  save(); render();
+  toast(s.currentScan<=(s.maxScan||s.currentScan) && s.currentScan<s.maxScan ? ("Back to scan "+s.currentScan) : ("Scan "+s.currentScan+" started"));
+}
+function prevScan(){
+  const s = curSession(); if(!s || s.currentScan<=1) return;
+  s.currentScan--; save(); render();
+  toast("Editing scan "+s.currentScan+" of "+(s.maxScan||s.currentScan));
+}
+function clearScan(){
+  const s = curSession(); if(!s) return;
+  const k = s.currentScan;
+  const n = s.events.filter(e=>e.scan===k).length;
+  if(!confirm("Clear everything recorded for scan "+k+"?\nThis removes "+n+" grooming bout"+(n===1?"":"s")+" and this scan's counts (not in view, activity categories). It can't be undone.")) return;
+  s.events = s.events.filter(e=>e.scan!==k);
+  if(s.scanOOV) delete s.scanOOV[k];
+  if(s.scanAct) delete s.scanAct[k];
+  save(); render();
+  toast("Scan "+k+" cleared");
 }
 function startSession(){
   const sp = $("#f-species").value;
@@ -518,7 +543,7 @@ function startSession(){
   const gnRaw = $("#f-groupn") ? $("#f-groupn").value.trim() : "";
   const gn = gnRaw==="" ? null : Math.max(0, parseInt(gnRaw,10)||0);
   const s = { id:uid(), species:sp, group:gp, institution:inst, observer:ob, date:dt, notes:nt,
-    groupN:gn, scanOOV:{}, currentScan:1, events:[],
+    groupN:gn, scanOOV:{}, scanAct:{}, currentScan:1, maxScan:1, events:[],
     startedAt:nowISO(), elapsedSec:0, runningSince:nowISO(),
     census:{start:{sizes:[],time:null}, end:{sizes:[],time:null}} };
   state.sessions.unshift(s); state.currentSessionId=s.id;
@@ -565,7 +590,16 @@ function renderRecord(){
   const s = curSession();
   if(!s){ renderStart(); return; }
   const t = totals(s);
-  const scanEvents = s.events.filter(e=>e.scan===s.currentScan);
+  const k = s.currentScan;
+  const maxScan = s.maxScan || s.currentScan;
+  const scanEvents = s.events.filter(e=>e.scan===k);
+  const act = (s.scanAct && s.scanAct[k]) || {};
+  const actVal = key => (act[key]!=null && act[key]!=="") ? act[key] : "";
+  const oovVal = (s.scanOOV && s.scanOOV[k]!=null && s.scanOOV[k]!=="") ? s.scanOOV[k] : "";
+  const groomIndiv = scanEvents.reduce((a,e)=> a + (e.type==="dyadic"?2:(parseInt(e.size,10)||0)), 0);
+  const actSum = ["rest","aggr","forage","other"].reduce((a,key)=> a + (parseInt(act[key],10)||0), 0);
+  const accounted = actSum + groomIndiv;
+  const inView = (s.groupN!=null) ? Math.max(0, s.groupN - (parseInt(oovVal,10)||0)) : null;
 
   app.innerHTML = `
     <div class="card">
@@ -590,20 +624,36 @@ function renderRecord(){
       <div class="console">
         <div class="scan-read">
           <div class="lbl">Scan</div>
-          <div class="num" id="scanNum">${s.currentScan}</div>
+          <div class="num" id="scanNum">${k}</div>
+          ${k<maxScan?`<div class="of-scan">of ${maxScan}</div>`:""}
         </div>
         <div class="scan-ctrls">
-          <button class="btn accent" data-action="next-scan">Next scan &rarr;</button>
-          <div class="scan-note"><b>${scanEvents.length}</b> grooming ${scanEvents.length===1?"bout":"bouts"} logged this scan. Record every bout you see now, then advance. A scan with none is still valid data.</div>
-          <div class="counts-row">
-            <label class="cfield"><span>Group N today</span>
-              <input type="number" min="0" step="1" inputmode="numeric" data-session-n value="${s.groupN!=null?s.groupN:""}" placeholder="—">
-            </label>
-            <label class="cfield"><span>Not in view (scan ${s.currentScan})</span>
-              <input type="number" min="0" step="1" inputmode="numeric" data-scan-oov value="${(s.scanOOV&&s.scanOOV[s.currentScan]!=null)?s.scanOOV[s.currentScan]:""}" placeholder="0">
-            </label>
-            ${s.groupN!=null?`<div class="cfield inview"><span>In view now</span><b>${Math.max(0, s.groupN - (parseInt(s.scanOOV&&s.scanOOV[s.currentScan],10)||0))}</b><span class="of">of ${s.groupN}</span></div>`:""}
+          <div class="scan-nav">
+            <button class="btn small ghost" data-action="prev-scan" ${k<=1?"disabled":""}>&larr; Prev</button>
+            <button class="btn accent" data-action="next-scan">${k<maxScan?"Next &rarr;":"Next scan &rarr;"}</button>
+            ${(scanEvents.length||oovVal!==""||actSum>0)?`<button class="btn small ghost" data-action="clear-scan">Clear this scan</button>`:""}
           </div>
+          <div class="scan-note">${k<maxScan?`<b>Editing a past scan.</b> `:""}<b>${scanEvents.length}</b> grooming ${scanEvents.length===1?"bout":"bouts"} this scan. Record every bout and the counts below, then advance. Mistake? Remove a bout with its ×, fix any count, or use <b>Clear this scan</b> / <b>Prev</b>.</div>
+        </div>
+      </div>
+
+      <div class="scan-counts">
+        <div class="counts-grid">
+          <label class="cfield"><span>Group N today</span>
+            <input type="number" min="0" step="1" inputmode="numeric" data-session-n value="${s.groupN!=null?s.groupN:""}" placeholder="—"></label>
+          <label class="cfield"><span>Not in view</span>
+            <input type="number" min="0" step="1" inputmode="numeric" data-scan-oov value="${oovVal}" placeholder="0"></label>
+          <label class="cfield"><span>Resting</span>
+            <input type="number" min="0" step="1" inputmode="numeric" data-scan-act="rest" value="${actVal("rest")}" placeholder="0"></label>
+          <label class="cfield"><span>Aggression</span>
+            <input type="number" min="0" step="1" inputmode="numeric" data-scan-act="aggr" value="${actVal("aggr")}" placeholder="0"></label>
+          <label class="cfield"><span>Foraging / feeding</span>
+            <input type="number" min="0" step="1" inputmode="numeric" data-scan-act="forage" value="${actVal("forage")}" placeholder="0"></label>
+          <label class="cfield"><span>Other</span>
+            <input type="number" min="0" step="1" inputmode="numeric" data-scan-act="other" value="${actVal("other")}" placeholder="0"></label>
+        </div>
+        <div class="reconcile ${(inView!=null && accounted>inView)?"over":""}">
+          Grooming now: <b>${groomIndiv}</b> indiv.${inView!=null?` &nbsp;·&nbsp; Accounted (states + grooming): <b>${accounted}</b> of <b>${inView}</b> in view`+(accounted===inView?" ✓":(accounted>inView?" — exceeds in-view!":` — ${inView-accounted} unaccounted`)):""}
         </div>
       </div>
 
@@ -903,7 +953,7 @@ function renderData(){
         <button class="btn" data-action="export-census" ${state.sessions.some(s=>s.census&&(s.census.start.sizes.length||s.census.end.sizes.length))?"":"disabled"}>Subgroup census (CSV)</button>
         <button class="btn ghost" data-action="export-backup" ${state.sessions.length?"":"disabled"}>Backup (JSON)</button>
       </div>
-      <p class="hint">All CSVs open directly in Excel, R, or Python. <b>Bouts</b>: one row per grooming bout. <b>Scans</b>: one row per scan with animals not-in-view, group N, and in-view N — your per-scan opportunity denominator. <b>Sessions</b>: one row per session with duration, group N, scan/grooming counts, and start/end subgroup totals. <b>Group summary</b>: one row per species × group × institution, pooled across sessions. <b>Subgroup census</b>: one row per subgroup with its size. Every file carries species, group, and institution. Keep a JSON backup so you never lose raw data.</p>
+      <p class="hint">All CSVs open directly in Excel, R, or Python. <b>Bouts</b>: one row per grooming bout. <b>Scans</b>: one row per scan with group N, not-in-view and in-view N (your per-scan opportunity denominator), and the activity budget — resting, aggression, foraging/feeding, other, plus individuals grooming. <b>Sessions</b>: one row per session with duration, group N, scan/grooming counts, and start/end subgroup totals. <b>Group summary</b>: one row per species × group × institution, pooled across sessions. <b>Subgroup census</b>: one row per subgroup with its size. Every file carries species, group, and institution. Keep a JSON backup so you never lose raw data.</p>
     </div>
 
     ${all.length ? `
@@ -1065,23 +1115,31 @@ function eventsCSV(){
   return toCSV(rows);
 }
 function scansCSV(){
-  const head = ["session_id","species","group","institution","date","scan_number","n_not_in_view","group_N_today","n_in_view","n_bouts","n_dyadic","n_polyadic","n_cluster","n_chain"];
+  const head = ["session_id","species","group","institution","date","scan_number","group_N_today","n_not_in_view","n_in_view",
+    "n_resting","n_aggression","n_foraging","n_other","n_grooming_indiv","n_accounted",
+    "n_bouts","n_dyadic","n_polyadic","n_cluster","n_chain"];
   const rows = [head];
+  const num = v => (v===undefined||v===null||v==="") ? "" : Math.max(0, parseInt(v,10)||0);
   state.sessions.forEach(s=>{
     const per = {};
     s.events.forEach(e=>{
-      const k=e.scan; if(!per[k]) per[k]={b:0,dy:0,po:0,cl:0,ch:0};
-      per[k].b++;
+      const k=e.scan; if(!per[k]) per[k]={b:0,dy:0,po:0,cl:0,ch:0,gi:0};
+      per[k].b++; per[k].gi += (e.type==="dyadic"?2:(parseInt(e.size,10)||0));
       if(e.type==="dyadic") per[k].dy++;
       else { per[k].po++; if(e.subtype==="chain") per[k].ch++; else per[k].cl++; }
     });
     const N = (s.groupN!=null) ? s.groupN : null;
-    for(let k=1;k<=s.currentScan;k++){
-      const raw = s.scanOOV ? s.scanOOV[k] : undefined;
-      const oov = (raw===undefined||raw===null||raw==="") ? "" : Math.max(0, parseInt(raw,10)||0);
+    const top = s.maxScan || s.currentScan;
+    for(let k=1;k<=top;k++){
+      const oov = num(s.scanOOV ? s.scanOOV[k] : undefined);
       const inView = (N!=null) ? Math.max(0, N - (oov===""?0:oov)) : "";
-      const p = per[k] || {b:0,dy:0,po:0,cl:0,ch:0};
-      rows.push([s.id,s.species,s.group,s.institution||"",s.date,k,oov,(N!=null?N:""),inView,p.b,p.dy,p.po,p.cl,p.ch]);
+      const a = (s.scanAct && s.scanAct[k]) || {};
+      const rest=num(a.rest), aggr=num(a.aggr), forage=num(a.forage), other=num(a.other);
+      const p = per[k] || {b:0,dy:0,po:0,cl:0,ch:0,gi:0};
+      const accounted = (rest||0)+(aggr||0)+(forage||0)+(other||0)+p.gi;
+      rows.push([s.id,s.species,s.group,s.institution||"",s.date,k,(N!=null?N:""),oov,inView,
+        rest,aggr,forage,other,p.gi,accounted,
+        p.b,p.dy,p.po,p.cl,p.ch]);
     }
   });
   return toCSV(rows);
@@ -1179,6 +1237,8 @@ document.addEventListener("click", e=>{
     case "arm-cancel": armed=null; render(); break;
     case "rm": removeEvent(el.dataset.id); break;
     case "next-scan": nextScan(); break;
+    case "prev-scan": prevScan(); break;
+    case "clear-scan": clearScan(); break;
     case "sess-toggle": { const s=curSession(); if(s){ if(s.runningSince) sessPause(s); else sessResume(s); save(); render(); } break; }
     case "census-edit": censusEdit[el.dataset.phase]=true; render(); break;
     case "census-done": censusEdit[el.dataset.phase]=false; render(); break;
@@ -1259,6 +1319,11 @@ document.addEventListener("change", e=>{
   const oov = e.target.closest("[data-scan-oov]");
   if(oov){ const s=curSession(); if(s){ const v=oov.value.trim(); if(!s.scanOOV) s.scanOOV={};
     if(v==="") delete s.scanOOV[s.currentScan]; else s.scanOOV[s.currentScan]=Math.max(0,parseInt(v,10)||0);
+    save(); render(); } return; }
+  const actEl = e.target.closest("[data-scan-act]");
+  if(actEl){ const s=curSession(); if(s){ const key=actEl.dataset.scanAct, v=actEl.value.trim();
+    if(!s.scanAct) s.scanAct={}; if(!s.scanAct[s.currentScan]) s.scanAct[s.currentScan]={};
+    if(v==="") delete s.scanAct[s.currentScan][key]; else s.scanAct[s.currentScan][key]=Math.max(0,parseInt(v,10)||0);
     save(); render(); } return; }
   const cen = e.target.closest("input[data-census]");
   if(cen){ const s=curSession(); if(s){ const arr=s.census[cen.dataset.census].sizes; arr[+cen.dataset.idx]=Math.max(1,parseInt(cen.value,10)||1); save(); render(); } return; }
