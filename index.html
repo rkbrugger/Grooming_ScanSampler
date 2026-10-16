@@ -1,1330 +1,1295 @@
 <!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Scan Sampler — grooming</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<title>Grooming Scan Sampler</title>
 <style>
   :root{
-    --bg:#E9EDE7; --surface:#F8FAF6; --surface-2:#FFFFFF;
-    --ink:#16211C; --ink-2:#55635B; --line:#CFD8CF; --line-2:#E0E6DE;
-    --brand:#0F6F5B; --brand-ink:#FFFFFF; --brand-soft:#DCEBE5;
-    --alert:#C8791B; --alert-ink:#FFFFFF; --alert-soft:#F6E7CF;
-    --danger:#A6402F; --danger-soft:#F1DCD6;
-    --shadow:0 1px 2px rgba(20,33,28,.06), 0 6px 20px rgba(20,33,28,.05);
-    --radius:12px; --radius-lg:16px;
-    --sans:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
-    --disp:'Space Grotesk',system-ui,sans-serif;
+    --bg:#E4E6E0; --surface:#F5F6F2; --surface-2:#EAECE5; --raise:#FBFBF8;
+    --ink:#1C2321; --ink-soft:#5A635D; --ink-faint:#8A928C; --line:#CBCFC6; --line-strong:#B4BAB0;
+    --dyadic:#1E6B6E; --dyadic-bg:#D5E6E5; --dyadic-line:#8FC4C1;
+    --polyadic:#B06713; --polyadic-bg:#F0E1C7; --polyadic-line:#DDB877;
+    --danger:#A63A2C; --danger-bg:#F0D9D4;
+    --ok:#2E7D46;
+    --shadow:0 1px 0 rgba(28,35,33,.04), 0 6px 22px -14px rgba(28,35,33,.28);
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Roboto Mono",monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,system-ui,sans-serif;
+    --r:14px; --r-sm:9px;
   }
-  :root:not([data-theme="light"]){
-    @media (prefers-color-scheme: dark){
-      --bg:#0E1512; --surface:#16201B; --surface-2:#1C2822;
-      --ink:#E7EEE8; --ink-2:#9AA8A0; --line:#2A362F; --line-2:#212B25;
-      --brand:#2FBFA0; --brand-ink:#06231D; --brand-soft:#123029;
-      --alert:#E8A23C; --alert-ink:#221604; --alert-soft:#33260F;
-      --danger:#E0765F; --danger-soft:#331C17;
-      --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.35);
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --bg:#111614; --surface:#191F1C; --surface-2:#212824; --raise:#1F2622;
+      --ink:#E7EBE5; --ink-soft:#9AA39C; --ink-faint:#6C756E; --line:#2E3733; --line-strong:#3C453F;
+      --dyadic:#57B7AB; --dyadic-bg:#122E2B; --dyadic-line:#2C5551;
+      --polyadic:#DA9C4B; --polyadic-bg:#33260E; --polyadic-line:#5B4A26;
+      --danger:#E37D6E; --danger-bg:#331A16;
+      --ok:#5FB87A;
+      --shadow:0 1px 0 rgba(0,0,0,.2), 0 10px 30px -18px rgba(0,0,0,.7);
     }
   }
   :root[data-theme="dark"]{
-    --bg:#0E1512; --surface:#16201B; --surface-2:#1C2822;
-    --ink:#E7EEE8; --ink-2:#9AA8A0; --line:#2A362F; --line-2:#212B25;
-    --brand:#2FBFA0; --brand-ink:#06231D; --brand-soft:#123029;
-    --alert:#E8A23C; --alert-ink:#221604; --alert-soft:#33260F;
-    --danger:#E0765F; --danger-soft:#331C17;
-    --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 20px rgba(0,0,0,.35);
+    --bg:#111614; --surface:#191F1C; --surface-2:#212824; --raise:#1F2622;
+    --ink:#E7EBE5; --ink-soft:#9AA39C; --ink-faint:#6C756E; --line:#2E3733; --line-strong:#3C453F;
+    --dyadic:#57B7AB; --dyadic-bg:#122E2B; --dyadic-line:#2C5551;
+    --polyadic:#DA9C4B; --polyadic-bg:#33260E; --polyadic-line:#5B4A26;
+    --danger:#E37D6E; --danger-bg:#331A16;
+    --ok:#5FB87A;
+    --shadow:0 1px 0 rgba(0,0,0,.2), 0 10px 30px -18px rgba(0,0,0,.7);
   }
 
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
   body{
-    background:var(--bg); color:var(--ink);
-    font-family:var(--sans); font-size:16px; line-height:1.45;
-    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    background:var(--bg); color:var(--ink); font-family:var(--sans);
+    font-size:16px; line-height:1.45; -webkit-font-smoothing:antialiased;
     padding-bottom:env(safe-area-inset-bottom);
   }
-  .num{font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1}
-  button{font-family:inherit; cursor:pointer}
-  input,select{font-family:inherit; font-size:16px}
-  a{color:var(--brand)}
+  .wrap{max-width:860px; margin:0 auto; padding:0 16px 72px}
 
-  .wrap{max-width:600px; margin:0 auto; padding:0 16px 40px}
-  .topbar{
-    position:sticky; top:0; z-index:20; background:var(--bg);
-    display:flex; align-items:center; gap:10px;
-    padding:14px 16px 12px; max-width:600px; margin:0 auto;
-    border-bottom:1px solid var(--line-2);
-    padding-top:calc(14px + env(safe-area-inset-top));
+  /* Header */
+  header.top{
+    position:sticky; top:0; z-index:20; background:color-mix(in srgb,var(--bg) 88%, transparent);
+    backdrop-filter:saturate(1.2) blur(8px); -webkit-backdrop-filter:saturate(1.2) blur(8px);
+    border-bottom:1px solid var(--line);
   }
-  .topbar .mark{
-    font-family:var(--disp); font-weight:700; font-size:15px; letter-spacing:-.01em;
-    display:flex; align-items:center; gap:8px;
+  .top-inner{max-width:860px; margin:0 auto; padding:12px 16px 0}
+  .brand{display:flex; align-items:center; gap:11px; justify-content:space-between}
+  .brand h1{
+    font-size:17px; font-weight:650; letter-spacing:-.015em; margin:0; display:flex; align-items:center; gap:9px;
   }
-  .topbar .mark .dot{width:9px;height:9px;border-radius:50%;background:var(--brand)}
-  .topbar .spacer{flex:1}
-  .iconbtn{
-    border:1px solid var(--line); background:var(--surface); color:var(--ink);
-    width:38px;height:38px;border-radius:10px; display:grid;place-items:center;
-    font-size:16px; line-height:1;
+  .brand h1 .glyph{color:var(--dyadic)}
+  .theme-btn{
+    border:1px solid var(--line); background:var(--surface); color:var(--ink-soft);
+    width:36px; height:36px; border-radius:9px; cursor:pointer; display:grid; place-items:center;
+    font-size:15px;
   }
-  .iconbtn:hover{border-color:var(--brand)}
-
-  h1.page{font-family:var(--disp); font-weight:600; font-size:26px; letter-spacing:-.02em; margin:22px 0 4px}
-  .sub{color:var(--ink-2); font-size:14px; margin:0 0 20px}
-
-  .panel{
-    background:var(--surface); border:1px solid var(--line);
-    border-radius:var(--radius-lg); box-shadow:var(--shadow);
+  .theme-btn:hover{border-color:var(--line-strong); color:var(--ink)}
+  nav.tabs{display:flex; gap:2px; margin-top:10px; overflow-x:auto; scrollbar-width:none}
+  nav.tabs::-webkit-scrollbar{display:none}
+  .tab{
+    appearance:none; border:0; background:transparent; color:var(--ink-soft);
+    font-family:inherit; font-size:14.5px; font-weight:550; padding:9px 13px 12px; cursor:pointer;
+    border-bottom:2px solid transparent; white-space:nowrap; letter-spacing:-.01em;
   }
-  .panel + .panel{margin-top:14px}
-  .pad{padding:16px}
+  .tab[aria-selected="true"]{color:var(--ink); border-bottom-color:var(--dyadic)}
+  .tab:hover{color:var(--ink)}
 
-  .rowlabel{font-family:var(--disp); font-weight:500; font-size:12.5px; letter-spacing:.02em;
-    color:var(--ink-2); display:flex; align-items:center; gap:8px; margin:26px 2px 10px}
-  .rowlabel::after{content:""; flex:1; height:1px; background:var(--line-2)}
+  /* Cards */
+  .card{
+    background:var(--surface); border:1px solid var(--line); border-radius:var(--r);
+    padding:16px; margin-top:14px; box-shadow:var(--shadow);
+  }
+  .card.flush{padding:0; overflow:hidden}
+  .card h2{font-size:13px; font-weight:600; letter-spacing:.01em; color:var(--ink-soft); margin:0 0 12px; text-transform:none}
+  .muted{color:var(--ink-soft)}
+  .faint{color:var(--ink-faint)}
 
-  /* buttons */
+  /* Session banner */
+  .sess-banner{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .sess-id{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+  .sess-id .sp{font-weight:650; font-size:19px; letter-spacing:-.02em}
+  .sess-id .gp{font-weight:550; font-size:19px; letter-spacing:-.02em; color:var(--dyadic)}
+  .sess-meta{font-size:13px; color:var(--ink-soft); margin-top:2px}
+  .sess-meta b{font-weight:600; color:var(--ink)}
+
+  /* Scan console */
+  .console{
+    display:grid; grid-template-columns:auto 1fr; gap:16px; align-items:center;
+  }
+  .scan-read{
+    background:var(--raise); border:1px solid var(--line); border-radius:12px; padding:12px 18px; text-align:center; min-width:118px;
+  }
+  .scan-read .lbl{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); font-weight:600}
+  .scan-read .num{font-family:var(--mono); font-size:44px; line-height:1; font-weight:600; letter-spacing:-.03em; margin-top:3px}
+  .scan-ctrls{display:flex; flex-direction:column; gap:9px; min-width:0}
+  .scan-note{font-size:13px; color:var(--ink-soft)}
+  .scan-note b{color:var(--ink); font-weight:600}
+
+  /* Timer */
+  .timer{border-top:1px dashed var(--line); margin-top:16px; padding-top:14px}
+  .timer-head{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+  .timer-face{font-family:var(--mono); font-size:26px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+  .timer-bar{height:6px; border-radius:99px; background:var(--surface-2); overflow:hidden; margin-top:10px}
+  .timer-bar > i{display:block; height:100%; background:var(--dyadic); width:0%; transition:width .28s linear}
+  .timer-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:12px}
+  .timer-set{display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink-soft)}
+  .timer-set input{width:64px}
+  .chk{display:inline-flex; align-items:center; gap:7px; font-size:13px; color:var(--ink-soft); cursor:pointer; user-select:none}
+  .chk input{width:16px; height:16px; accent-color:var(--dyadic)}
+  @keyframes flashdue{0%,100%{background:var(--surface)}35%{background:var(--dyadic-bg)}}
+  .card.due{animation:flashdue 1s ease 2}
+
+  /* Log buttons */
+  .log-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px}
+  @media (max-width:560px){ .log-grid{grid-template-columns:1fr} }
+  .logbtn{
+    appearance:none; cursor:pointer; text-align:left; font-family:inherit;
+    border:1.5px solid var(--line); background:var(--raise); color:var(--ink);
+    border-radius:12px; padding:15px 15px 13px; display:flex; flex-direction:column; gap:10px;
+    transition:transform .06s ease, border-color .12s ease, background .12s ease;
+  }
+  .logbtn:active{transform:translateY(1px) scale(.995)}
+  .logbtn .ico{width:38px; height:24px}
+  .logbtn .t{font-weight:640; font-size:16px; letter-spacing:-.01em; line-height:1.1}
+  .logbtn .s{font-size:12.5px; color:var(--ink-soft); line-height:1.25}
+  .logbtn .tally{margin-top:auto; font-family:var(--mono); font-size:12px; color:var(--ink-faint); font-weight:600}
+  .logbtn.dy{border-color:var(--dyadic-line)} .logbtn.dy:hover{background:var(--dyadic-bg)}
+  .logbtn.dy .ico{color:var(--dyadic)} .logbtn.dy .tally b{color:var(--dyadic)}
+  .logbtn.po{border-color:var(--polyadic-line)} .logbtn.po:hover{background:var(--polyadic-bg)}
+  .logbtn.po .ico{color:var(--polyadic)} .logbtn.po .tally b{color:var(--polyadic)}
+
+  /* Current scan chips */
+  .chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:4px; min-height:2px}
+  .chip{
+    display:inline-flex; align-items:center; gap:7px; padding:5px 6px 5px 10px; border-radius:99px;
+    font-size:12.5px; font-weight:600; border:1px solid var(--line); background:var(--raise);
+    animation:pop .18s ease;
+  }
+  @keyframes pop{from{transform:scale(.82); opacity:0}to{transform:scale(1); opacity:1}}
+  .chip.dy{background:var(--dyadic-bg); border-color:var(--dyadic-line); color:var(--dyadic)}
+  .chip.po{background:var(--polyadic-bg); border-color:var(--polyadic-line); color:var(--polyadic)}
+  .chip .x{
+    width:18px; height:18px; border-radius:99px; border:0; cursor:pointer; display:grid; place-items:center;
+    background:color-mix(in srgb,currentColor 16%, transparent); color:inherit; font-size:12px; line-height:1;
+  }
+  .chip .x:hover{background:color-mix(in srgb,currentColor 30%, transparent)}
+  .empty-scan{font-size:13px; color:var(--ink-faint); font-style:italic; padding:2px 0}
+
+  /* Polyadic size picker */
+  .logbtn.armed{background:var(--polyadic-bg); border-color:var(--polyadic); box-shadow:inset 0 0 0 1px var(--polyadic)}
+  .arm{margin-top:12px; border:1.5px solid var(--polyadic-line); background:var(--polyadic-bg); border-radius:12px; padding:13px 14px; animation:pop .16s ease}
+  .arm-q{font-size:14.5px; font-weight:650; color:var(--polyadic); margin-bottom:11px; display:flex; align-items:center; gap:9px; letter-spacing:-.01em}
+  .arm-q .ico{width:32px; height:19px; flex:none}
+  .arm-nums{display:flex; flex-wrap:wrap; gap:8px}
+  .numbtn{appearance:none; cursor:pointer; font-family:var(--mono); font-weight:600; font-size:17px; min-width:46px; height:46px; border-radius:11px; border:1.5px solid var(--polyadic-line); background:var(--raise); color:var(--ink)}
+  .numbtn:hover{border-color:var(--polyadic); background:var(--surface)}
+  .numbtn:active{transform:translateY(1px)}
+  .arm-more{display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-top:12px; border-top:1px dashed var(--polyadic-line); padding-top:12px}
+  .arm-more .lbl{font-size:12.5px; color:var(--ink-soft)}
+  .stepper{display:inline-flex; align-items:center; border:1px solid var(--line-strong); border-radius:10px; overflow:hidden; background:var(--raise)}
+  .stepper button{appearance:none; border:0; background:transparent; color:var(--ink); width:38px; height:38px; font-size:20px; line-height:1; cursor:pointer}
+  .stepper button:hover{background:var(--surface-2)}
+  .stepper .sv{font-family:var(--mono); font-weight:600; min-width:32px; text-align:center; font-size:16px}
+  .szcell{max-width:76px; min-width:60px; text-align:center; font-family:var(--mono); font-weight:600}
+
+  /* Per-scan count fields */
+  .counts-row{display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-top:4px}
+  .cfield{display:flex; flex-direction:column; gap:4px}
+  .cfield > span{font-size:11px; letter-spacing:.02em; color:var(--ink-faint); font-weight:600}
+  .cfield input{width:104px; font-family:var(--mono); font-weight:600; text-align:center}
+  .cfield.inview{align-items:flex-start}
+  .cfield.inview b{font-family:var(--mono); font-size:22px; line-height:1; color:var(--dyadic)}
+  .cfield.inview .of{font-size:11px; color:var(--ink-faint); font-weight:600; margin-top:1px}
+
+  /* Species / group / institution editor */
+  .sp-block{border:1px solid var(--line); border-radius:12px; padding:13px 13px 11px; margin-bottom:12px; background:var(--raise)}
+  .sp-block-head{display:flex; align-items:flex-end; gap:10px}
+  .sp-block-head .fld{flex:1; margin:0}
+  .grp-list{display:flex; flex-direction:column; gap:8px; margin-top:11px; padding-top:11px; border-top:1px dashed var(--line)}
+  .grp-row{display:grid; grid-template-columns:1fr 1fr auto; gap:8px; align-items:center}
+  .grp-row input{font-size:14px}
+  @media (max-width:560px){
+    .grp-row{grid-template-columns:1fr auto}
+    .grp-row .grp-inst{grid-column:1 / -1}
+  }
+
+  /* Session clock */
+  .sess-clock{display:flex; flex-direction:column; align-items:flex-end; gap:6px; flex:none}
+  .clk-lbl{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); font-weight:600}
+  .clock-face{font-family:var(--mono); font-size:22px; font-weight:600; letter-spacing:-.02em; font-variant-numeric:tabular-nums; display:flex; align-items:center; gap:8px}
+  .clock-face .dot{width:8px; height:8px; border-radius:99px; background:var(--ink-faint); flex:none}
+  .clock-face.run .dot{background:var(--ok); animation:pulse 1.7s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* Subgroup census */
+  .census-head{font-weight:640; font-size:15.5px; letter-spacing:-.01em; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+  .census-head .faint{font-weight:400; font-size:13px}
+  .census-sum{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .census-sum .big{font-size:15px; margin-top:3px}
+  .census-sum .big b{font-family:var(--mono)}
+  .subrows{display:flex; flex-direction:column; gap:8px; margin:13px 0 4px}
+  .subrow{display:flex; align-items:center; gap:10px}
+  .subrow .lab{font-size:13.5px; color:var(--ink-soft); min-width:98px; font-weight:550}
+  .subrow input{width:88px; text-align:center; font-family:var(--mono); font-weight:600}
+  .census-tot{font-size:13.5px; color:var(--ink-soft); margin-top:8px}
+  .census-tot b{color:var(--ink); font-family:var(--mono)}
+
+  /* Tally strip */
+  .tallies{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:12px; overflow:hidden}
+  @media (max-width:560px){ .tallies{grid-template-columns:repeat(2,1fr)} }
+  .tally-cell{background:var(--surface); padding:11px 12px}
+  .tally-cell .k{font-size:11px; color:var(--ink-faint); font-weight:600; letter-spacing:.02em}
+  .tally-cell .v{font-family:var(--mono); font-size:23px; font-weight:600; letter-spacing:-.02em; margin-top:2px}
+  .tally-cell.dyv .v{color:var(--dyadic)} .tally-cell.pov .v{color:var(--polyadic)}
+  .tally-cell .sub{font-size:11px; color:var(--ink-soft); margin-top:1px}
+
+  /* Buttons */
   .btn{
-    display:inline-flex; align-items:center; justify-content:center; gap:8px;
-    border:1px solid var(--line); background:var(--surface); color:var(--ink);
-    padding:12px 16px; border-radius:12px; font-weight:600; font-size:15px;
-    min-height:48px; width:100%;
+    appearance:none; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;
+    border:1px solid var(--line-strong); background:var(--surface); color:var(--ink);
+    border-radius:10px; padding:9px 14px; display:inline-flex; align-items:center; gap:7px; letter-spacing:-.01em;
+    transition:background .12s ease, border-color .12s ease;
   }
-  .btn:hover{border-color:var(--brand)}
-  .btn.primary{background:var(--brand); color:var(--brand-ink); border-color:var(--brand)}
-  .btn.primary:hover{filter:brightness(1.05)}
-  .btn.alert{background:var(--alert); color:var(--alert-ink); border-color:var(--alert)}
+  .btn:hover{background:var(--surface-2)}
+  .btn.primary{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+  .btn.primary:hover{opacity:.92}
+  .btn.accent{background:var(--dyadic); color:#fff; border-color:var(--dyadic)}
+  .btn.accent:hover{opacity:.92}
   .btn.ghost{background:transparent}
-  .btn.small{min-height:40px; padding:9px 12px; font-size:14px; width:auto}
+  .btn.small{padding:6px 10px; font-size:13px; border-radius:8px}
   .btn.danger{color:var(--danger); border-color:var(--danger)}
-  .btn.danger:hover{background:var(--danger-soft)}
-  .btn:disabled{opacity:.5; cursor:not-allowed}
-  .btnrow{display:flex; gap:10px}
-  .btnrow .btn{width:auto; flex:1}
+  .btn.danger:hover{background:var(--danger-bg)}
+  .btn:disabled{opacity:.45; cursor:not-allowed}
+  .btn-row{display:flex; gap:8px; flex-wrap:wrap}
 
-  /* forms */
-  .field{margin-bottom:14px}
-  .field label{display:block; font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:6px}
-  .field input, .field select, .field textarea{
-    width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:10px;
-    background:var(--surface-2); color:var(--ink);
+  /* Forms */
+  label.fld{display:block; margin-bottom:12px}
+  label.fld > span{display:block; font-size:12.5px; font-weight:600; color:var(--ink-soft); margin-bottom:5px}
+  input[type=text], input[type=date], input[type=number], select, textarea{
+    width:100%; font-family:inherit; font-size:15px; color:var(--ink);
+    background:var(--raise); border:1px solid var(--line-strong); border-radius:9px; padding:9px 11px;
   }
-  .field input:focus, .field select:focus, .field textarea:focus{outline:2px solid var(--brand); outline-offset:1px; border-color:var(--brand)}
-  .field .hint{font-size:12px; color:var(--ink-2); margin-top:5px}
-  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-  .toggle{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-top:1px solid var(--line-2)}
-  .toggle .t-label{font-size:14px}
-  .toggle .t-label small{display:block; color:var(--ink-2); font-size:12px; font-weight:400}
-  .switch{position:relative; width:46px; height:28px; flex:none}
-  .switch input{opacity:0; width:0; height:0; position:absolute}
-  .switch span{position:absolute; inset:0; background:var(--line); border-radius:99px; transition:background .15s}
-  .switch span::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#fff; transition:transform .15s; box-shadow:0 1px 2px rgba(0,0,0,.3)}
-  .switch input:checked + span{background:var(--brand)}
-  .switch input:checked + span::after{transform:translateX(18px)}
-  .switch input:focus-visible + span{outline:2px solid var(--brand); outline-offset:2px}
+  input:focus, select:focus, textarea:focus{outline:2px solid var(--dyadic); outline-offset:1px; border-color:var(--dyadic)}
+  textarea{resize:vertical; min-height:52px}
+  .form-2{display:grid; grid-template-columns:1fr 1fr; gap:0 12px}
+  @media (max-width:560px){ .form-2{grid-template-columns:1fr} }
 
-  /* session list */
-  .sess{display:flex; align-items:center; gap:14px; padding:14px 16px; text-align:left; width:100%;
-    border:none; background:none; color:inherit; border-bottom:1px solid var(--line-2)}
-  .sess:last-child{border-bottom:none}
-  .sess:hover{background:var(--surface-2)}
-  .sess .sp{width:6px; align-self:stretch; border-radius:99px; flex:none}
-  .sess .meta{flex:1; min-width:0}
-  .sess .meta .t{font-family:var(--disp); font-weight:600; font-size:16px; letter-spacing:-.01em}
-  .sess .meta .d{color:var(--ink-2); font-size:13px; margin-top:1px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  .sess .cnt{font-family:var(--disp); text-align:right; flex:none}
-  .sess .cnt b{display:block; font-size:20px; font-weight:600}
-  .sess .cnt small{color:var(--ink-2); font-size:11px}
-  .chev{color:var(--ink-2); font-size:18px; flex:none}
-
-  .empty{text-align:center; padding:44px 20px; color:var(--ink-2)}
-  .empty .big{font-size:40px; margin-bottom:10px}
-
-  /* observe */
-  .obs-head{display:flex; align-items:flex-start; gap:12px; margin:18px 0 6px}
-  .obs-head .who{flex:1; min-width:0}
-  .obs-head .who .t{font-family:var(--disp); font-weight:600; font-size:22px; letter-spacing:-.02em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
-  .obs-head .who .s{color:var(--ink-2); font-size:13px}
-  .scannum{font-family:var(--disp); font-weight:600; color:var(--ink-2); font-size:14px; margin-bottom:14px}
-  .scannum b{color:var(--ink); font-size:16px}
-
-  .timer{
-    border:1px solid var(--line); background:var(--surface); border-radius:var(--radius-lg);
-    text-align:center; padding:22px 16px; box-shadow:var(--shadow); transition:background .2s,border-color .2s;
-  }
-  .timer .clock{font-family:var(--disp); font-weight:700; font-size:56px; line-height:1; letter-spacing:-.01em}
-  .timer .cap{font-size:13px; color:var(--ink-2); margin-top:8px; font-weight:600}
-  .timer.due{background:var(--alert); border-color:var(--alert); color:var(--alert-ink); animation:pulse 1s ease-in-out infinite}
-  .timer.due .cap{color:var(--alert-ink)}
-  .timer.paused{opacity:.7}
-  @keyframes pulse{0%,100%{box-shadow:var(--shadow)} 50%{box-shadow:0 0 0 6px var(--alert-soft)}}
-  @media (prefers-reduced-motion: reduce){ .timer.due{animation:none} }
-  .timer-ctl{display:flex; gap:10px; margin-top:12px}
-  .timer-ctl .btn{width:auto; flex:1; min-height:44px}
-
-  .beh{display:flex; align-items:center; gap:12px; padding:12px 4px; border-bottom:1px solid var(--line-2)}
-  .beh:last-child{border-bottom:none}
-  .beh .name{flex:1; font-size:15.5px; font-weight:500}
-  .stepper{display:flex; align-items:center; gap:2px; background:var(--surface-2); border:1px solid var(--line); border-radius:12px; padding:3px}
-  .stepper button{
-    width:46px; height:46px; border-radius:9px; border:none; background:transparent; color:var(--ink);
-    font-size:26px; font-weight:600; line-height:1; display:grid; place-items:center;
-  }
-  .stepper button:hover{background:var(--brand-soft)}
-  .stepper button:active{background:var(--brand); color:var(--brand-ink)}
-  .stepper .val{font-family:var(--disp); font-weight:600; font-size:22px; min-width:40px; text-align:center}
-  .stepper .val.zero{color:var(--ink-2)}
-
-  .tally{display:flex; align-items:baseline; justify-content:space-between; margin:16px 2px 4px; font-size:14px; color:var(--ink-2)}
-  .tally b{font-family:var(--disp); color:var(--ink); font-size:18px; font-weight:600}
-  .tally .over{color:var(--danger)}
-
-  .sticky-save{position:sticky; bottom:0; padding:14px 0 calc(14px + env(safe-area-inset-bottom));
-    background:linear-gradient(to top, var(--bg) 72%, transparent); margin-top:8px}
-
-  /* data table */
-  .tablescroll{overflow-x:auto; -webkit-overflow-scrolling:touch}
+  /* Tables */
+  .tbl-scroll{overflow-x:auto}
   table{border-collapse:collapse; width:100%; font-size:13.5px}
-  th,td{padding:9px 10px; text-align:left; white-space:nowrap; border-bottom:1px solid var(--line-2)}
-  th{font-family:var(--disp); font-weight:600; font-size:12px; color:var(--ink-2); position:sticky; top:0; background:var(--surface)}
-  td.n{text-align:right; font-variant-numeric:tabular-nums}
-  tr:hover td{background:var(--surface-2)}
+  th,td{text-align:left; padding:9px 11px; border-bottom:1px solid var(--line); white-space:nowrap}
+  th{font-size:11.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-faint); font-weight:650; background:var(--surface-2); position:sticky; top:0}
+  tbody tr:hover{background:var(--surface-2)}
+  td.num, th.num{font-family:var(--mono); text-align:right; font-variant-numeric:tabular-nums}
+  .pill{display:inline-block; padding:2px 8px; border-radius:99px; font-size:11.5px; font-weight:650}
+  .pill.dy{background:var(--dyadic-bg); color:var(--dyadic)}
+  .pill.po{background:var(--polyadic-bg); color:var(--polyadic)}
+  td .mini{font-size:12px; color:var(--ink-soft)}
+  tr.grp-total td{background:var(--surface-2); font-weight:700}
+  .icell{border:1px solid var(--line); border-radius:7px; background:var(--raise); padding:5px 8px; font-size:12.5px; width:100%; min-width:120px}
 
-  /* editable behaviour list (setup/settings) */
-  .editrow{display:flex; align-items:center; gap:8px; margin-bottom:8px}
-  .editrow input{flex:1}
-  .editrow .del{width:40px; height:40px; flex:none; border:1px solid var(--line); background:var(--surface); border-radius:10px; color:var(--danger); font-size:18px; display:grid; place-items:center}
-  .editrow .del:hover{background:var(--danger-soft)}
+  /* Sessions list */
+  .sess-list{display:flex; flex-direction:column; gap:8px}
+  .sess-item{display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 13px; border:1px solid var(--line); border-radius:11px; background:var(--raise)}
+  .sess-item .info .l1{font-weight:600; letter-spacing:-.01em}
+  .sess-item .info .l1 .gp{color:var(--dyadic)}
+  .sess-item .info .l2{font-size:12.5px; color:var(--ink-soft); font-family:var(--mono)}
+  .sess-item.active{border-color:var(--dyadic); background:var(--dyadic-bg)}
+  .row-actions{display:flex; gap:6px; flex-shrink:0}
 
-  /* modal */
-  .modal-bg{position:fixed; inset:0; background:rgba(10,15,13,.5); display:grid; place-items:center; padding:18px; z-index:50}
-  .modal{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius-lg); max-width:520px; width:100%; max-height:86vh; overflow:auto; box-shadow:var(--shadow)}
-  .modal .m-pad{padding:18px}
-  .modal h3{font-family:var(--disp); margin:0 0 6px; font-size:19px; font-weight:600}
-  .modal p.m-sub{color:var(--ink-2); font-size:13.5px; margin:0 0 14px}
-  textarea.csv{width:100%; height:200px; font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:12px; border:1px solid var(--line); border-radius:10px; padding:10px; background:var(--surface-2); color:var(--ink); white-space:pre; overflow:auto}
+  .icobtn{border:1px solid var(--line); background:var(--surface); color:var(--ink-soft); width:32px;height:32px;border-radius:8px;cursor:pointer;display:grid;place-items:center;font-size:14px}
+  .icobtn:hover{color:var(--danger); border-color:var(--danger)}
 
-  .seg{display:inline-flex; border:1px solid var(--line); border-radius:10px; overflow:hidden}
-  .seg button{border:none; background:var(--surface); color:var(--ink-2); padding:8px 14px; font-size:13px; font-weight:600}
-  .seg button.on{background:var(--brand); color:var(--brand-ink)}
+  .hint{font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5}
+  .divider{height:1px; background:var(--line); margin:16px 0}
+  .kbd{font-family:var(--mono); font-size:12px; background:var(--surface-2); border:1px solid var(--line); border-radius:5px; padding:1px 6px}
 
-  /* structured (polyadic) behaviours during observation */
-  .beh-struct{padding:14px 4px; border-bottom:1px solid var(--line-2)}
-  .beh-struct:last-child{border-bottom:none}
-  .beh-head{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px}
-  .beh-head .name{font-size:15.5px; font-weight:500}
-  .beh-head .sumcount{font-family:var(--disp); font-size:13px; color:var(--ink-2)}
-  .beh-head .sumcount b{color:var(--ink); font-weight:600; font-size:16px}
-  .chips{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px}
-  .chip{display:inline-flex; align-items:center; gap:4px; background:var(--surface-2); border:1px solid var(--line); border-radius:99px; padding:3px 5px 3px 12px}
-  .chip .ct{font-size:13px; font-weight:600}
-  .chip .ct.cluster{color:var(--brand)}
-  .chip .ct.chain{color:var(--alert)}
-  .chip .msize{display:inline-flex; align-items:center}
-  .chip .msize button{width:30px; height:30px; border:none; background:transparent; color:var(--ink); font-size:19px; font-weight:600; border-radius:7px; line-height:1}
-  .chip .msize button:hover{background:var(--brand-soft)}
-  .chip .msize .sv{min-width:22px; text-align:center; font-size:15px}
-  .chip .rm{width:26px; height:26px; border:none; background:transparent; color:var(--danger); font-size:16px; border-radius:6px; line-height:1}
-  .chip .rm:hover{background:var(--danger-soft)}
-  .chip.empty-note{background:none; border:none; color:var(--ink-2); font-size:13px; padding-left:2px}
-  .addrow{display:flex; gap:8px}
-  .addrow button{flex:1; border:1px dashed var(--line); background:transparent; color:var(--ink); border-radius:10px; padding:10px; font-size:14px; font-weight:600}
-  .addrow button:hover{border-color:var(--brand); border-style:solid}
-  .addrow button .k{color:var(--ink-2); font-weight:400; font-size:12px}
-  /* behaviour list editor (setup + settings) */
-  .beh-edit{border:1px solid var(--line-2); border-radius:10px; padding:8px 8px 2px; margin-bottom:8px; background:var(--surface-2)}
-  .beh-edit.is-struct{border-color:var(--brand)}
-  .beh-edit .top{display:flex; gap:8px; align-items:center}
-  .beh-edit .top input{flex:1}
-  .beh-edit .opt{display:flex; align-items:center; gap:10px; margin:8px 2px; cursor:pointer}
-  .beh-edit .opt-l{font-size:13px; color:var(--ink-2)}
+  /* Toast */
+  #toast{
+    position:fixed; left:50%; bottom:22px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:10px; font-size:14px; font-weight:600;
+    box-shadow:var(--shadow); opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; z-index:60; max-width:90vw;
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  #toast.err{background:var(--danger); color:#fff}
 
-  .toast{position:fixed; left:50%; bottom:26px; transform:translateX(-50%) translateY(20px); opacity:0;
-    background:var(--ink); color:var(--bg); padding:11px 18px; border-radius:99px; font-size:14px; font-weight:600;
-    transition:opacity .2s, transform .2s; z-index:60; pointer-events:none; max-width:88vw; text-align:center}
-  .toast.show{opacity:1; transform:translateX(-50%) translateY(0)}
+  /* Modal */
+  #modal, #endmodal{position:fixed; inset:0; background:rgba(10,14,12,.5); display:none; place-items:center; z-index:70; padding:18px}
+  #modal.show, #endmodal.show{display:grid}
+  .modal-box{background:var(--surface); border:1px solid var(--line-strong); border-radius:14px; padding:18px; max-width:640px; width:100%; box-shadow:var(--shadow)}
+  .modal-box h3{margin:0 0 6px; font-size:16px}
+  .modal-box textarea{min-height:220px; font-family:var(--mono); font-size:12px; white-space:pre; overflow:auto}
 
-  :focus-visible{outline:2px solid var(--brand); outline-offset:2px}
+  @media (prefers-reduced-motion:reduce){ *{animation:none !important; transition:none !important} }
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="mark"><span class="dot"></span> Scan Sampler</div>
-    <div class="spacer"></div>
-    <button class="iconbtn" id="btn-home" title="Sessions" aria-label="Sessions">☰</button>
-    <button class="iconbtn" id="btn-theme" title="Toggle light/dark" aria-label="Toggle theme">◐</button>
-    <button class="iconbtn" id="btn-settings" title="Settings" aria-label="Settings">⚙</button>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand">
+      <h1><span class="glyph" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="7" cy="8" r="2.4"/><circle cx="17" cy="8" r="2.4"/><circle cx="12" cy="16.5" r="2.4"/><path d="M9 8.6 15 8.6M8.2 10 11 14.6M15.8 10 13 14.6"/></svg>
+      </span>Grooming Scan Sampler</h1>
+      <button class="theme-btn" id="themeBtn" title="Toggle light / dark" aria-label="Toggle light or dark theme">◐</button>
+    </div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-tab="record">Record</button>
+      <button class="tab" role="tab" data-tab="summary">Summary</button>
+      <button class="tab" role="tab" data-tab="data">Data &amp; export</button>
+      <button class="tab" role="tab" data-tab="settings">Settings</button>
+    </nav>
   </div>
-  <main class="wrap" id="app"></main>
-  <div class="toast" id="toast"></div>
+</header>
+
+<main class="wrap" id="app"></main>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="modal" role="dialog" aria-modal="true"><div class="modal-box">
+  <h3 id="modalTitle">Export</h3>
+  <p class="muted" id="modalMsg" style="font-size:13px;margin:0 0 10px"></p>
+  <textarea id="modalText" readonly></textarea>
+  <div class="btn-row" style="margin-top:12px;justify-content:flex-end">
+    <button class="btn ghost" data-action="modal-close">Close</button>
+    <button class="btn primary" data-action="modal-copy">Copy to clipboard</button>
+  </div>
+</div></div>
+
+<div id="endmodal" role="dialog" aria-modal="true"><div class="modal-box">
+  <h3>End this session?</h3>
+  <p class="muted" style="font-size:13.5px;margin:0 0 16px;line-height:1.55">The <b>end-of-session subgroup census</b> hasn't been recorded yet. Logging how many subgroups are present and their sizes at the end keeps your census data complete.</p>
+  <div class="btn-row" style="justify-content:flex-end;flex-wrap:wrap">
+    <button class="btn ghost" data-action="end-cancel">Cancel</button>
+    <button class="btn" data-action="end-anyway">End without census</button>
+    <button class="btn primary" data-action="end-record">Record end census</button>
+  </div>
+</div></div>
 
 <script>
 "use strict";
-(function(){
-  var STORE_KEY = "grooming-scan-v1";
-  var THEME_KEY = "grooming-scan-theme";
-  // rev 2026-10-16b: groups+institution registry; per-session N present; per-scan not-in-view
 
-  var DEFAULTS = {
-    species: ["Species A", "Species B", "Species C"],
-    institutions: [],   // e.g. "Zoo Zürich", "Zoo Basel"
-    groups: [],         // {id, name, species, institution, groupSize}
-    ethogram: [
-      {name:"Dyadic grooming", structured:false},
-      {name:"Polyadic grooming", structured:true},
-      {name:"Autogrooming", structured:false},
-      {name:"Feeding", structured:false},
-      {name:"Resting", structured:false},
-      {name:"Moving", structured:false},
-      {name:"Other", structured:false},
-      {name:"Out of sight", structured:false}
-    ],
-    interval: 300,        // seconds between scans
-    sound: true,
-    carry: false,         // start each scan from previous counts
-    trackNIV: true,       // record animals not in view each scan
-    sessions: []
-  };
+/* ---------- SVG icons (taxonomy is encoded, not decorative) ---------- */
+const ICON = {
+  dyadic:'<svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><circle cx="32" cy="12" r="4.2"/><path d="M16.4 12 27.6 12"/></svg>',
+  cluster:'<svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="22" cy="12" r="4"/><circle cx="7" cy="6" r="2.6"/><circle cx="7" cy="18" r="2.6"/><circle cx="37" cy="6" r="2.6"/><circle cx="37" cy="18" r="2.6"/><path d="M18.4 10 9.4 6.6M18.4 14 9.4 17.4M25.6 10 34.6 6.6M25.6 14 34.6 17.4"/></svg>',
+  chain:'<svg viewBox="0 0 44 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="6" cy="12" r="3.4"/><circle cx="22" cy="12" r="3.4"/><circle cx="38" cy="12" r="3.4"/><path d="M9.4 12 18.6 12M25.4 12 34.6 12"/></svg>'
+};
 
-  var state = load();
-  var view = { name:"home", sessionId:null };
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const uid = () => Math.random().toString(36).slice(2,9);
+const todayStr = () => { const d=new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); };
+const nowISO = () => new Date().toISOString();
+const fmtClock = iso => { try{ const d=new Date(iso); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")+":"+String(d.getSeconds()).padStart(2,"0"); }catch(e){ return ""; } };
+function esc(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function mmss(t){ t=Math.max(0,Math.round(t)); return String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0"); }
+function fmtDur(sec){ sec=Math.max(0,Math.floor(sec)); const h=Math.floor(sec/3600), m=Math.floor((sec%3600)/60), s=sec%60; return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0"); }
+const mean = (sum,n)=> n ? sum/n : null;
+const fmtMean = m => m==null ? "—" : (Math.round(m*10)/10).toFixed(1);
 
-  // ---- live-observation runtime (not persisted directly except via session) ----
-  var live = null; // { session, counts:{}, remaining, awaiting, paused, tickHandle, audio, wakeLock }
+/* ---------- state ---------- */
+const LS_KEY = "grooming_scan_sampler_v1";
+const defaultState = () => ({
+  version:2,
+  speciesList:[
+    {name:"Species 1", groups:[]},
+    {name:"Species 2", groups:[]},
+    {name:"Species 3", groups:[]}
+  ],
+  defaultInterval:300,
+  sessions:[],
+  currentSessionId:null,
+  activeTab:"record",
+  theme:null
+});
+let state = defaultState();
 
-  // ---------- storage ----------
-  function normBeh(arr){
-    if(!Array.isArray(arr)) return [];
-    return arr.map(function(b){
-      if(typeof b==="string") return {name:b, structured:false};
-      return {name:(b&&b.name)||"", structured:!!(b&&b.structured)};
-    });
+// Build speciesList from legacy species[]/groups[] on the RAW parsed object,
+// before defaults are merged (otherwise the default speciesList would mask it).
+function migrateLegacy(p){
+  if(p && typeof p==="object" && !Array.isArray(p.speciesList) && (Array.isArray(p.species)||Array.isArray(p.groups))){
+    const sp = Array.isArray(p.species) ? p.species : [];
+    const gp = Array.isArray(p.groups) ? p.groups : [];
+    p.speciesList = sp.map((nm,i)=>({
+      name: nm,
+      groups: (gp[i] && String(gp[i]).trim()) ? [{name:String(gp[i]).trim(), institution:""}] : []
+    }));
   }
-  function load(){
-    try{
-      var raw = localStorage.getItem(STORE_KEY);
-      if(!raw) return clone(DEFAULTS);
-      var d = JSON.parse(raw);
-      // fill any missing top-level keys
-      for(var k in DEFAULTS){ if(!(k in d)) d[k] = clone(DEFAULTS[k]); }
-      if(!Array.isArray(d.sessions)) d.sessions = [];
-      if(!Array.isArray(d.institutions)) d.institutions=[];
-      if(!Array.isArray(d.groups)) d.groups=[];
-      d.ethogram = normBeh(d.ethogram);
-      d.sessions.forEach(function(s){
-        s.behaviours = normBeh(s.behaviours);
-        if(!Array.isArray(s.scans)) s.scans=[];
-        if(s.institution==null) s.institution = s.location || "";  // migrate old "location" into institution
-        if(s.nPresent==null && s.groupSize!=null) s.nPresent = s.groupSize; // N present that day
-      });
-      return d;
-    }catch(e){ return clone(DEFAULTS); }
-  }
-  function persist(){
-    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }
-    catch(e){ toast("Couldn't save — storage may be full or blocked"); }
-  }
-  function clone(o){ return JSON.parse(JSON.stringify(o)); }
+  return p;
+}
+function normConfig(){
+  if(!Array.isArray(state.speciesList) || state.speciesList.length===0)
+    state.speciesList = defaultState().speciesList;
+  state.speciesList = state.speciesList.map(s=>({
+    name: (s && s.name!=null) ? String(s.name) : "",
+    groups: Array.isArray(s && s.groups) ? s.groups.map(g=>({
+      name: (g && g.name!=null) ? String(g.name) : "",
+      institution: (g && g.institution!=null) ? String(g.institution) : ""
+    })) : []
+  }));
+  delete state.species; delete state.groups;
+}
 
-  // ---------- helpers ----------
-  function el(html){ var t=document.createElement("template"); t.innerHTML=html.trim(); return t.content.firstElementChild; }
-  function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
-  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
-  function fmtClock(sec){ sec=Math.max(0,Math.round(sec)); var m=Math.floor(sec/60), s=sec%60; return (m<10?"0":"")+m+":"+(s<10?"0":"")+s; }
-  function fmtDate(iso){ try{ var d=new Date(iso); return d.toLocaleDateString(undefined,{year:"numeric",month:"short",day:"numeric"}); }catch(e){ return iso; } }
-  function fmtDateTime(iso){ try{ var d=new Date(iso); return d.toLocaleString(undefined,{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit"}); }catch(e){ return iso; } }
-  function speciesColor(name){
-    var list = state.species;
-    var i = list.indexOf(name); if(i<0) i = Math.abs(hash(name))%3;
-    var hues = [ getVar("--brand"), getVar("--alert"), "#5B7CB0" ];
-    // deterministic hue from a small palette
-    var pal = ["#0F6F5B","#C8791B","#4E6E9E","#8A5A9E","#B0553A","#3E8A5E"];
-    return pal[(state.species.indexOf(name)+6)%pal.length] || pal[Math.abs(hash(name))%pal.length];
-  }
-  function getVar(v){ return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
-  function hash(s){ var h=0; s=String(s); for(var i=0;i<s.length;i++){ h=(h<<5)-h+s.charCodeAt(i); h|=0; } return h; }
+function load(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){ let p = JSON.parse(raw); if(p && typeof p==="object"){ p = migrateLegacy(p); state = Object.assign(defaultState(), p);
+      if(!Array.isArray(state.sessions)) state.sessions = [];
+      normConfig();
+      state.sessions.forEach(normSession);
+    } }
+  }catch(e){ /* storage blocked or corrupt — run in memory */ }
+}
+function save(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
+}
 
-  var toastT;
-  function toast(msg){
-    var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
-    clearTimeout(toastT); toastT=setTimeout(function(){ t.classList.remove("show"); }, 2200);
-  }
+/* ---------- theme ---------- */
+function applyTheme(){
+  if(state.theme==="light"||state.theme==="dark") document.documentElement.setAttribute("data-theme", state.theme);
+  else document.documentElement.removeAttribute("data-theme");
+}
+function toggleTheme(){
+  const cur = state.theme || (matchMedia("(prefers-color-scheme:dark)").matches ? "dark":"light");
+  state.theme = cur==="dark" ? "light":"dark";
+  applyTheme(); save();
+}
 
-  // ---------- navigation ----------
-  function go(name, sessionId){
-    // leaving observe: stop timer + release wake lock (session data is already persisted)
-    if(view.name==="observe" && name!=="observe") stopLive(false);
-    view = { name:name, sessionId: sessionId||null };
-    render();
-    window.scrollTo(0,0);
-  }
-
-  document.getElementById("btn-home").onclick=function(){ go("home"); };
-  document.getElementById("btn-settings").onclick=function(){ go("settings"); };
-  document.getElementById("btn-theme").onclick=toggleTheme;
-
-  // ---------- theme ----------
-  function applyTheme(){
-    var t = localStorage.getItem(THEME_KEY);
-    if(t==="light"||t==="dark") document.documentElement.setAttribute("data-theme",t);
-    else document.documentElement.removeAttribute("data-theme");
-  }
-  function toggleTheme(){
-    var cur = document.documentElement.getAttribute("data-theme");
-    var dark = cur ? cur==="dark"
-      : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var next = dark ? "light" : "dark";
-    localStorage.setItem(THEME_KEY, next);
-    document.documentElement.setAttribute("data-theme", next);
-  }
-  applyTheme();
-
-  // ================= VIEWS =================
-  function render(){
-    var app=document.getElementById("app");
-    app.innerHTML="";
-    if(view.name==="home") return renderHome(app);
-    if(view.name==="setup") return renderSetup(app);
-    if(view.name==="observe") return renderObserve(app);
-    if(view.name==="data") return renderData(app);
-    if(view.name==="settings") return renderSettings(app);
-  }
-
-  // ---------- HOME ----------
-  function renderHome(app){
-    app.appendChild(el('<h1 class="page">Sessions</h1>'));
-    app.appendChild(el('<p class="sub">Record scans in the field, then export as CSV.</p>'));
-
-    var start = el('<button class="btn primary">＋ New session</button>');
-    start.onclick=function(){ go("setup"); };
-    app.appendChild(start);
-
-    if(state.sessions.length===0){
-      app.appendChild(el(
-        '<div class="panel" style="margin-top:16px"><div class="empty">'+
-        '<div class="big">🐾</div>'+
-        '<div>No sessions yet.</div>'+
-        '<div style="font-size:13px;margin-top:4px">Start one to begin recording scans.</div>'+
-        '</div></div>'));
-      return;
+/* ---------- session helpers ---------- */
+function curSession(){ return state.sessions.find(s=>s.id===state.currentSessionId) || null; }
+function speciesNames(){ return state.speciesList.map(s=>s.name).filter(n=>n && String(n).trim()); }
+function speciesEntry(name){ return state.speciesList.find(s=>s.name===name) || null; }
+function groupsOf(name){ const e=speciesEntry(name); return e ? e.groups.filter(g=>g.name && String(g.name).trim()) : []; }
+function instFor(species, group){ const g = groupsOf(species).find(x=>x.name===group); return g ? (g.institution||"") : ""; }
+function speciesWithGroups(){ return state.speciesList.filter(s=> s.name && String(s.name).trim() && s.groups.some(g=>g.name && String(g.name).trim())); }
+function normSession(s){
+  if(s.elapsedSec==null) s.elapsedSec=0;
+  if(s.runningSince===undefined) s.runningSince=null;
+  if(s.institution===undefined) s.institution="";
+  if(s.groupN===undefined) s.groupN=null;
+  if(!s.scanOOV || typeof s.scanOOV!=="object") s.scanOOV={};
+  if(!s.startedAt) s.startedAt = (s.events[0] && s.events[0].time) || nowISO();
+  if(!s.census) s.census = {start:{sizes:[],time:null}, end:{sizes:[],time:null}};
+  if(!s.census.start) s.census.start = {sizes:[],time:null};
+  if(!s.census.end) s.census.end = {sizes:[],time:null};
+}
+function sessElapsed(s){ return (s.elapsedSec||0) + (s.runningSince ? (Date.now()-Date.parse(s.runningSince))/1000 : 0); }
+function sessResume(s){ if(s && !s.runningSince) s.runningSince = nowISO(); }
+function sessPause(s){ if(s && s.runningSince){ s.elapsedSec = (s.elapsedSec||0) + (Date.now()-Date.parse(s.runningSince))/1000; s.runningSince = null; } }
+function censusSub(c){ const sizes=(c&&c.sizes)||[]; return {n:sizes.length, total:sizes.reduce((a,b)=>a+(parseInt(b,10)||0),0), sizes}; }
+function totals(sess){
+  let dy=0, cl=0, ch=0, clSum=0, clN=0, chSum=0, chN=0;
+  sess.events.forEach(e=>{
+    if(e.type==="dyadic") dy++;
+    else if(e.type==="polyadic"){
+      const n = parseInt(e.size,10);
+      if(e.subtype==="chain"){ ch++; if(n>=3){ chSum+=n; chN++; } }
+      else { cl++; if(n>=3){ clSum+=n; clN++; } }
     }
-
-    var listp = el('<div class="panel" style="margin-top:16px"></div>');
-    // newest first
-    var sorted = state.sessions.slice().sort(function(a,b){ return (b.startedAt||"").localeCompare(a.startedAt||""); });
-    sorted.forEach(function(s){
-      var row = el('<button class="sess"></button>');
-      row.innerHTML =
-        '<span class="sp" style="background:'+speciesColor(s.species)+'"></span>'+
-        '<span class="meta"><span class="t">'+esc(s.group||"Untitled group")+'</span>'+
-        '<span class="d">'+esc(s.species)+(s.institution?' · '+esc(s.institution):'')+' · '+fmtDate(s.startedAt)+'</span></span>'+
-        '<span class="cnt num"><b>'+s.scans.length+'</b><small>scans</small></span>'+
-        '<span class="chev">›</span>';
-      row.onclick=function(){ go("data", s.id); };
-      listp.appendChild(row);
-    });
-    app.appendChild(listp);
-
-    var exp = el('<button class="btn ghost" style="margin-top:16px">Export all sessions (CSV)</button>');
-    exp.onclick=function(){ openExport(state.sessions, "all-sessions"); };
-    app.appendChild(exp);
-  }
-
-  // ---------- SETUP (new session) ----------
-  function renderSetup(app){
-    app.appendChild(el('<h1 class="page">New session</h1>'));
-    app.appendChild(el('<p class="sub">Set the group and scan interval. Behaviours are saved with this session.</p>'));
-
-    // working ethogram copy for this session (deep copy of objects)
-    var eth = state.ethogram.map(function(b){ return {name:b.name, structured:!!b.structured}; });
-
-    // ---- where: pick an existing group (carries its species + institution) or make a new one ----
-    var sel = {
-      groupId: (state.groups[0] ? state.groups[0].id : "__new"),
-      ng: { name:"", species:(state.species[0]||""), institution:"" },
-      newInst: false
-    };
-    app.appendChild(el('<div class="rowlabel">Group</div>'));
-    var wherePanel = el('<div class="panel pad"></div>');
-    app.appendChild(wherePanel);
-    app.appendChild(el('<p class="sub" style="margin-top:8px;font-size:12px">A group belongs to one species at one institution. Reuse the same group across its sessions so labels stay consistent.</p>'));
-
-    function instOptions(selected){
-      return state.institutions.map(function(it){ return '<option value="'+esc(it)+'"'+(it===selected?' selected':'')+'>'+esc(it)+'</option>'; }).join("")
-        + '<option value="__newinst">＋ New institution…</option>';
-    }
-    function drawWhere(){
-      wherePanel.innerHTML="";
-      var gWrap=el('<div class="field" style="margin:0"><label>Group</label></div>');
-      var gSel=el('<select id="f-groupsel"></select>');
-      state.groups.forEach(function(g){
-        var o=el('<option value="'+esc(g.id)+'">'+esc(g.name)+' · '+esc(g.species)+(g.institution?' · '+esc(g.institution):'')+'</option>');
-        if(g.id===sel.groupId) o.selected=true; gSel.appendChild(o);
-      });
-      var oNew=el('<option value="__new">＋ New group…</option>'); if(sel.groupId==="__new") oNew.selected=true; gSel.appendChild(oNew);
-      gSel.onchange=function(){ sel.groupId=gSel.value; sel.newInst=false; drawWhere(); syncSize(); };
-      gWrap.appendChild(gSel); wherePanel.appendChild(gWrap);
-
-      if(sel.groupId==="__new"){
-        var spOpts=state.species.map(function(sp){ return '<option value="'+esc(sp)+'"'+(sp===sel.ng.species?' selected':'')+'>'+esc(sp)+'</option>'; }).join("");
-        var sub=el('<div style="margin-top:12px"></div>');
-        sub.innerHTML =
-          '<div class="field"><label>New group name</label><input id="f-ngname" placeholder="e.g. Troop B" autocomplete="off" value="'+esc(sel.ng.name)+'"></div>'+
-          '<div class="grid2">'+
-            '<div class="field" style="margin:0"><label>Species</label><select id="f-ngspecies">'+spOpts+'</select></div>'+
-            '<div class="field" style="margin:0"><label>Institution</label><select id="f-nginst">'+instOptions(sel.ng.institution)+'</select></div>'+
-          '</div>';
-        wherePanel.appendChild(sub);
-        var nameI=sub.querySelector("#f-ngname"); nameI.oninput=function(){ sel.ng.name=nameI.value; };
-        var spI=sub.querySelector("#f-ngspecies"); spI.onchange=function(){ sel.ng.species=spI.value; };
-        var instI=sub.querySelector("#f-nginst");
-        instI.onchange=function(){ if(instI.value==="__newinst"){ sel.newInst=true; sel.ng.institution=""; drawWhere(); } else { sel.ng.institution=instI.value; } };
-        if(sel.newInst){
-          var nf=el('<div class="field" style="margin-top:12px"><label>New institution name</label><input id="f-newinst" placeholder="e.g. Zoo Zürich" autocomplete="off" value="'+esc(sel.ng.institution)+'"></div>');
-          wherePanel.appendChild(nf);
-          var ni=nf.querySelector("#f-newinst"); ni.oninput=function(){ sel.ng.institution=ni.value; }; setTimeout(function(){ ni.focus(); },0);
-        }
-      } else {
-        var g=groupById(sel.groupId);
-        if(g) wherePanel.appendChild(el('<p class="sub" style="margin:10px 2px 0;font-size:13px">'+esc(g.species)+(g.institution?' · '+esc(g.institution):' · <span style="color:var(--alert)">no institution set</span>')+'</p>'));
-      }
-    }
-    drawWhere();
-
-    app.appendChild(el('<div class="rowlabel">Session details</div>'));
-    var form = el('<div class="panel pad"></div>');
-    form.innerHTML =
-      '<div class="grid2">'+
-        '<div class="field" style="margin:0"><label>Observer</label><input id="f-observer" autocomplete="off"></div>'+
-        '<div class="field" style="margin:0"><label>Animals present today (N)</label><input id="f-size" type="number" min="0" inputmode="numeric" placeholder="e.g. 14"><div class="hint">Group total on this day — the denominator for proportions.</div></div>'+
-      '</div>'+
-      '<div class="grid2" style="margin-top:14px">'+
-        '<div class="field" style="margin:0"><label>Scan interval</label>'+
-          '<select id="f-interval">'+
-            [15,30,60,120,180,300,600,900].map(function(v){
-              return '<option value="'+v+'"'+(v===state.interval?' selected':'')+'>'+(v<60? v+' sec' : (v/60)+' min')+'</option>';
-            }).join("")+
-          '</select></div>'+
-        '<div class="field" style="margin:0"><label>Notes (optional)</label><input id="f-notes" autocomplete="off"></div>'+
-      '</div>';
-    app.appendChild(form);
-    function syncSize(){ var g=groupById(sel.groupId); var szEl=document.getElementById("f-size"); if(szEl) szEl.value=(g && g.groupSize!=null)? g.groupSize : ""; }
-    syncSize();
-
-    app.appendChild(el('<div class="rowlabel">Behaviours for this session</div>'));
-    var ethPanel = el('<div class="panel pad"></div>');
-    var listWrap = el('<div id="eth-list"></div>');
-    ethPanel.appendChild(listWrap);
-    var redrawEth = renderBehaviourList(listWrap, eth, null);
-    var add = el('<button class="btn small ghost" style="margin-top:4px">＋ Add behaviour</button>');
-    add.onclick=function(){ eth.push({name:"",structured:false}); redrawEth(); setTimeout(function(){ var ins=listWrap.querySelectorAll("input"); if(ins.length) ins[ins.length-1].focus(); },0); };
-    ethPanel.appendChild(add);
-    app.appendChild(ethPanel);
-    app.appendChild(el('<p class="sub" style="margin-top:8px;font-size:12px">Turn on <b>Polyadic</b> for a behaviour to log each bout as a chain or cluster with its size during scans.</p>'));
-
-    var opts = el('<div class="panel pad" style="margin-top:14px"></div>');
-    opts.appendChild(toggleRow("Sound + vibration cue","Beep and buzz when a scan is due", state.sound, function(v){ state.sound=v; persist(); }));
-    opts.appendChild(toggleRow("Carry counts between scans","Start each scan from the previous counts instead of zero", state.carry, function(v){ state.carry=v; persist(); }));
-    opts.appendChild(toggleRow("Record animals not in view","Add a per-scan count of animals you can't see", state.trackNIV!==false, function(v){ state.trackNIV=v; persist(); }));
-    app.appendChild(opts);
-
-    var startBtn = el('<button class="btn primary" style="margin-top:18px">Start observing</button>');
-    startBtn.onclick=function(){
-      var behaviours = eth.map(function(b){ return {name:(b.name||"").trim(), structured:!!b.structured}; }).filter(function(b){ return b.name.length; });
-      if(behaviours.length===0){ toast("Add at least one behaviour"); return; }
-
-      var grp;
-      if(sel.groupId==="__new"){
-        var gname=(sel.ng.name||"").trim();
-        if(!gname){ toast("Enter a group name"); return; }
-        var ginst=(sel.ng.institution||"").trim();
-        if(ginst && state.institutions.indexOf(ginst)<0) state.institutions.push(ginst);
-        grp={ id:uid(), name:gname, species:(sel.ng.species||state.species[0]||""), institution:ginst, groupSize:null };
-        state.groups.push(grp);
-      } else {
-        grp=groupById(sel.groupId);
-        if(!grp){ toast("Pick or create a group"); return; }
-      }
-
-      var szVal=parseInt(document.getElementById("f-size").value,10);
-      if(isNaN(szVal)) szVal=null;
-      if(szVal!=null) grp.groupSize=szVal; // remember as this group's default prefill
-
-      var session = {
-        id: uid(),
-        groupId: grp.id,
-        species: grp.species,
-        group: grp.name,
-        institution: grp.institution||"",
-        observer: (document.getElementById("f-observer").value||"").trim(),
-        nPresent: szVal,
-        interval: parseInt(document.getElementById("f-interval").value,10)||state.interval,
-        notes: (document.getElementById("f-notes").value||"").trim(),
-        behaviours: behaviours,
-        carry: state.carry,
-        trackNIV: state.trackNIV!==false,
-        startedAt: new Date().toISOString(),
-        scans: []
-      };
-      state.sessions.push(session);
-      persist();
-      go("observe", session.id);
-    };
-    app.appendChild(startBtn);
-
-    var cancel = el('<button class="btn ghost" style="margin-top:10px">Cancel</button>');
-    cancel.onclick=function(){ go("home"); };
-    app.appendChild(cancel);
-  }
-
-  function toggleRow(title, sub, val, onchange){
-    var row=el('<div class="toggle"><div class="t-label">'+esc(title)+'<small>'+esc(sub)+'</small></div>'+
-      '<label class="switch"><input type="checkbox"'+(val?' checked':'')+'><span></span></label></div>');
-    row.querySelector("input").onchange=function(e){ onchange(e.target.checked); };
-    return row;
-  }
-
-  // Shared editor for a list of behaviour objects {name, structured}. Mutates `list` in place.
-  function renderBehaviourList(container, list, persistFn){
-    function draw(){
-      container.innerHTML="";
-      list.forEach(function(b,i){
-        var card=el('<div class="beh-edit'+(b.structured?' is-struct':'')+'"></div>');
-        var top=el('<div class="top"></div>');
-        var inp=el('<input value="'+esc(b.name)+'" placeholder="Behaviour name" autocomplete="off">');
-        inp.oninput=function(){ b.name=inp.value; };
-        inp.onblur=function(){ b.name=inp.value; if(persistFn) persistFn(); };
-        var del=el('<button class="del" aria-label="Remove">×</button>');
-        del.onclick=function(){ list.splice(i,1); if(persistFn) persistFn(); draw(); };
-        top.appendChild(inp); top.appendChild(del); card.appendChild(top);
-        var opt=el('<label class="opt"><span class="switch"><input type="checkbox"'+(b.structured?' checked':'')+'><span></span></span><span class="opt-l">Polyadic — record chain / cluster &amp; size</span></label>');
-        opt.querySelector("input").onchange=function(e){ b.structured=e.target.checked; card.classList.toggle("is-struct", b.structured); if(persistFn) persistFn(); };
-        card.appendChild(opt);
-        container.appendChild(card);
-      });
-    }
-    draw();
-    return draw;
-  }
-
-  // Simple editor for a list of strings (institutions). Mutates `list` in place.
-  function renderStringList(container, list, persistFn, placeholder){
-    function draw(){
-      container.innerHTML="";
-      if(list.length===0) container.appendChild(el('<p class="sub" style="margin:0 0 8px;font-size:12.5px">None yet.</p>'));
-      list.forEach(function(v,i){
-        var r=el('<div class="editrow"></div>');
-        var inp=el('<input value="'+esc(v)+'" placeholder="'+esc(placeholder||"")+'" autocomplete="off">');
-        inp.oninput=function(){ list[i]=inp.value; };
-        inp.onblur=function(){ list[i]=inp.value.trim(); if(persistFn) persistFn(); };
-        var del=el('<button class="del" aria-label="Remove">×</button>');
-        del.onclick=function(){ list.splice(i,1); if(persistFn) persistFn(); draw(); };
-        r.appendChild(inp); r.appendChild(del); container.appendChild(r);
-      });
-    }
-    draw();
-    return draw;
-  }
-
-  // Editor for the group registry: name + species + institution per group.
-  function renderGroupList(container){
-    function draw(){
-      container.innerHTML="";
-      if(state.groups.length===0){ container.appendChild(el('<p class="sub" style="margin:0;font-size:12.5px">No groups yet. Create one when you start a session.</p>')); return; }
-      state.groups.forEach(function(g,i){
-        var card=el('<div class="beh-edit"></div>');
-        var top=el('<div class="top"></div>');
-        var inp=el('<input value="'+esc(g.name)+'" placeholder="Group name" autocomplete="off">');
-        inp.oninput=function(){ g.name=inp.value; };
-        inp.onblur=function(){ g.name=inp.value.trim()||g.name; persist(); };
-        var del=el('<button class="del" aria-label="Remove">×</button>');
-        del.onclick=function(){ confirmModal("Remove this group from the list?","“"+g.name+"” will no longer appear when starting a session. Sessions already recorded for it are kept.","Remove",function(){ state.groups.splice(i,1); persist(); draw(); }, true); };
-        top.appendChild(inp); top.appendChild(del); card.appendChild(top);
-        var row=el('<div class="grid2" style="margin:8px 2px 4px"></div>');
-        var spSel=el('<select></select>');
-        state.species.forEach(function(sp){ var o=el('<option value="'+esc(sp)+'">'+esc(sp)+'</option>'); if(sp===g.species)o.selected=true; spSel.appendChild(o); });
-        if(g.species && state.species.indexOf(g.species)<0){ var og=el('<option value="'+esc(g.species)+'" selected>'+esc(g.species)+'</option>'); spSel.appendChild(og); }
-        spSel.onchange=function(){ g.species=spSel.value; persist(); };
-        var instSel=el('<select></select>');
-        var none=el('<option value="">— institution —</option>'); if(!g.institution)none.selected=true; instSel.appendChild(none);
-        if(g.institution && state.institutions.indexOf(g.institution)<0){ var oi=el('<option value="'+esc(g.institution)+'" selected>'+esc(g.institution)+'</option>'); instSel.appendChild(oi); }
-        state.institutions.forEach(function(it){ var o=el('<option value="'+esc(it)+'">'+esc(it)+'</option>'); if(it===g.institution)o.selected=true; instSel.appendChild(o); });
-        instSel.onchange=function(){ g.institution=instSel.value; persist(); };
-        var f1=el('<div class="field" style="margin:0"></div>'); f1.appendChild(spSel);
-        var f2=el('<div class="field" style="margin:0"></div>'); f2.appendChild(instSel);
-        row.appendChild(f1); row.appendChild(f2); card.appendChild(row);
-        container.appendChild(card);
-      });
-    }
-    draw();
-    return draw;
-  }
-
-  // ---------- OBSERVE (live scanning) ----------
-  function renderObserve(app){
-    var session = getSession(view.sessionId);
-    if(!session){ go("home"); return; }
-
-    // (re)initialise live runtime if needed
-    if(!live || live.session.id!==session.id){
-      var startCounts = {}, startGroups = {};
-      session.behaviours.forEach(function(b){ startCounts[b.name]=0; if(b.structured) startGroups[b.name]=[]; });
-      live = {
-        session: session,
-        counts: startCounts,
-        groups: startGroups,
-        notInView: 0,
-        dom: {},
-        remaining: session.interval,
-        awaiting: false,
-        paused: false,
-        tickHandle: null,
-        audio: null,
-        wakeLock: null
-      };
-      startTick();
-      requestWake();
-    }
-    live.dom = {}; // dom refs for structured behaviours, rebuilt each render
-
-    var head = el('<div class="obs-head"><div class="who">'+
-        '<div class="t">'+esc(session.group)+'</div>'+
-        '<div class="s">'+esc(session.species)+(session.institution?' · '+esc(session.institution):'')+'</div>'+
-      '</div></div>');
-    var endBtn = el('<button class="iconbtn" title="End session" aria-label="End session">✕</button>');
-    endBtn.onclick=endSession;
-    head.appendChild(endBtn);
-    app.appendChild(head);
-
-    app.appendChild(el('<div class="scannum">Recording scan <b class="num">#'+(session.scans.length+1)+'</b>'+
-      (session.scans.length? ' · last at '+esc(fmtDateTime(session.scans[session.scans.length-1].timestamp)) : '')+'</div>'));
-
-    // timer
-    var timer = el('<div class="timer" id="timerbox">'+
-      '<div class="clock num" id="clock">'+fmtClock(live.remaining)+'</div>'+
-      '<div class="cap" id="timercap">next scan</div></div>');
-    app.appendChild(timer);
-
-    var ctl = el('<div class="timer-ctl"></div>');
-    var pauseBtn = el('<button class="btn ghost small" id="pausebtn" style="flex:1">'+(live.paused?'Resume':'Pause')+'</button>');
-    pauseBtn.onclick=function(){ live.paused=!live.paused; pauseBtn.textContent=live.paused?'Resume':'Pause'; updateTimerUI(); };
-    var nowBtn = el('<button class="btn ghost small" style="flex:1">Scan now</button>');
-    nowBtn.onclick=function(){ live.remaining=0; live.awaiting=true; cue(); updateTimerUI(); };
-    var resetBtn = el('<button class="btn ghost small" style="flex:1">Reset timer</button>');
-    resetBtn.onclick=function(){ live.remaining=session.interval; live.awaiting=false; updateTimerUI(); };
-    ctl.appendChild(pauseBtn); ctl.appendChild(nowBtn); ctl.appendChild(resetBtn);
-    app.appendChild(ctl);
-
-    // behaviours
-    app.appendChild(el('<div class="rowlabel">Count per behaviour</div>'));
-    var behPanel = el('<div class="panel pad"></div>');
-    session.behaviours.forEach(function(b){
-      if(b.structured){ renderStructBehaviour(b, behPanel); return; }
-      var row = el('<div class="beh"><div class="name">'+esc(b.name)+'</div></div>');
-      var st = el('<div class="stepper"></div>');
-      var minus = el('<button aria-label="Decrease '+esc(b.name)+'">−</button>');
-      var val = el('<div class="val num'+(live.counts[b.name]?'':' zero')+'" data-b="'+esc(b.name)+'">'+live.counts[b.name]+'</div>');
-      var plus = el('<button aria-label="Increase '+esc(b.name)+'">＋</button>');
-      minus.onclick=function(){ setCount(b.name, live.counts[b.name]-1, val); };
-      plus.onclick=function(){ setCount(b.name, live.counts[b.name]+1, val); };
-      st.appendChild(minus); st.appendChild(val); st.appendChild(plus);
-      row.appendChild(st); behPanel.appendChild(row);
-    });
-    app.appendChild(behPanel);
-    session.behaviours.forEach(function(b){ if(b.structured) drawChips(b.name); });
-
-    if(session.trackNIV){
-      app.appendChild(el('<div class="rowlabel">Not in view</div>'));
-      var nivPanel=el('<div class="panel pad"></div>');
-      var nrow=el('<div class="beh"><div class="name">Animals not in view</div></div>');
-      var nst=el('<div class="stepper"></div>');
-      var nminus=el('<button aria-label="Decrease not in view">−</button>');
-      var nval=el('<div class="val num'+(live.notInView?'':' zero')+'" id="niv-val">'+live.notInView+'</div>');
-      var nplus=el('<button aria-label="Increase not in view">＋</button>');
-      nminus.onclick=function(){ setNIV(live.notInView-1); };
-      nplus.onclick=function(){ setNIV(live.notInView+1); };
-      nst.appendChild(nminus); nst.appendChild(nval); nst.appendChild(nplus);
-      nrow.appendChild(nst); nivPanel.appendChild(nrow);
-      app.appendChild(nivPanel);
-    }
-
-    var present = presentN(session);
-    var tally = el('<div class="tally">'+
-      '<span>Scored <b class="num" id="tally-n">'+total()+'</b>'+
-        (session.trackNIV? ' · <span class="num" id="tally-niv">'+live.notInView+'</span> not in view':'')+'</span>'+
-      (present!=null? '<span id="tally-of">of N = '+present+'</span>':'')+'</div>');
-    app.appendChild(tally);
-
-    var saveWrap = el('<div class="sticky-save"></div>');
-    var save = el('<button class="btn primary" id="savebtn">Save scan</button>');
-    save.onclick=saveScan;
-    saveWrap.appendChild(save);
-    app.appendChild(saveWrap);
-
-    updateTimerUI();
-  }
-
-  function setCount(b, v, valEl){
-    if(v<0) v=0;
-    live.counts[b]=v;
-    valEl.textContent=v;
-    valEl.classList.toggle("zero", v===0);
-    updateTally();
-  }
-  function total(){ var t=0; for(var k in live.counts) t+=live.counts[k]; return t; }
-  function presentN(s){ return s.nPresent!=null ? s.nPresent : (s.groupSize!=null ? s.groupSize : null); }
-  function setNIV(v){
-    if(v<0) v=0;
-    live.notInView=v;
-    var e=document.getElementById("niv-val");
-    if(e){ e.textContent=v; e.classList.toggle("zero", v===0); }
-    updateTally();
-  }
-  function updateTally(){
-    var tn=document.getElementById("tally-n"); if(!tn) return;
-    var t=total(); tn.textContent=t;
-    var nivEl=document.getElementById("tally-niv"); if(nivEl) nivEl.textContent=live.notInView;
-    var present=presentN(live.session);
-    var ofs=document.getElementById("tally-of");
-    if(ofs){
-      var accounted = t + (live.session.trackNIV? live.notInView : 0);
-      ofs.classList.toggle("over", present!=null && accounted>present);
-    }
-  }
-  function recomputeStruct(name){ var arr=live.groups[name]||[]; var s=0; for(var i=0;i<arr.length;i++) s+=arr[i].size; live.counts[name]=s; }
-
-  function renderStructBehaviour(b, panel){
-    var name=b.name;
-    var block=el('<div class="beh-struct"></div>');
-    var head=el('<div class="beh-head"><span class="name">'+esc(name)+'</span><span class="sumcount"></span></div>');
-    block.appendChild(head);
-    var chips=el('<div class="chips"></div>');
-    block.appendChild(chips);
-    var addr=el('<div class="addrow"></div>');
-    var ac=el('<button>＋ Chain <span class="k">A→B→C</span></button>');
-    var au=el('<button>＋ Cluster <span class="k">around one</span></button>');
-    ac.onclick=function(){ addSub(name,"chain"); };
-    au.onclick=function(){ addSub(name,"cluster"); };
-    addr.appendChild(ac); addr.appendChild(au);
-    block.appendChild(addr);
-    panel.appendChild(block);
-    live.dom[name]={ chips:chips, sum:head.querySelector(".sumcount") };
-  }
-  function addSub(name, type){
-    if(!live.groups[name]) live.groups[name]=[];
-    live.groups[name].push({type:type, size:3}); // polyadic = 3+ individuals
-    recomputeStruct(name); drawChips(name);
-    if(navigator.vibrate) try{ navigator.vibrate(10); }catch(e){}
-  }
-  function drawChips(name){
-    var ref=live.dom[name]; if(!ref) return;
-    var arr=live.groups[name]||[];
-    ref.chips.innerHTML="";
-    if(arr.length===0){ ref.chips.appendChild(el('<span class="chip empty-note">No polyadic bouts this scan</span>')); }
-    arr.forEach(function(g,idx){
-      var chip=el('<span class="chip"></span>');
-      chip.appendChild(el('<span class="ct '+g.type+'">'+(g.type==="chain"?"Chain":"Cluster")+'</span>'));
-      var ms=el('<span class="msize"></span>');
-      var minus=el('<button aria-label="Smaller">−</button>');
-      var sv=el('<span class="sv num">'+g.size+'</span>');
-      var plus=el('<button aria-label="Larger">＋</button>');
-      minus.onclick=function(){ if(g.size>3){ g.size--; sv.textContent=g.size; recomputeStruct(name); updateSum(name); } };
-      plus.onclick=function(){ g.size++; sv.textContent=g.size; recomputeStruct(name); updateSum(name); };
-      ms.appendChild(minus); ms.appendChild(sv); ms.appendChild(plus);
-      chip.appendChild(ms);
-      var rm=el('<button class="rm" aria-label="Remove bout">×</button>');
-      rm.onclick=function(){ arr.splice(idx,1); recomputeStruct(name); drawChips(name); };
-      chip.appendChild(rm);
-      ref.chips.appendChild(chip);
-    });
-    updateSum(name);
-  }
-  function updateSum(name){
-    var ref=live.dom[name]; if(!ref) return;
-    var arr=live.groups[name]||[]; var s=live.counts[name]||0;
-    ref.sum.innerHTML = arr.length ? ('<b>'+s+'</b> in '+arr.length+' bout'+(arr.length===1?'':'s')) : '0';
-    updateTally();
-  }
-
-  function saveScan(){
-    var s=live.session;
-    var groupsSnap={};
-    s.behaviours.forEach(function(b){ if(b.structured) groupsSnap[b.name]=clone(live.groups[b.name]||[]); });
-    var scan = { n: s.scans.length+1, timestamp: new Date().toISOString(), counts: clone(live.counts), groups: groupsSnap };
-    if(s.trackNIV) scan.notInView = live.notInView;
-    s.scans.push(scan);
-    persist();
-    // reset for next scan
-    if(!s.carry){ s.behaviours.forEach(function(b){ live.counts[b.name]=0; if(b.structured) live.groups[b.name]=[]; }); live.notInView=0; }
-    live.remaining = s.interval;
-    live.awaiting = false;
-    toast("Scan #"+scan.n+" saved");
-    if(navigator.vibrate) try{ navigator.vibrate(20); }catch(e){}
-    render(); // redraw scan number + steppers
-  }
-
-  function startTick(){
-    stopTick();
-    live.tickHandle = setInterval(function(){
-      if(live.paused) return;
-      if(live.remaining>0){
-        live.remaining--;
-        if(live.remaining===0 && !live.awaiting){ live.awaiting=true; cue(); }
-        updateTimerUI();
-      }
-    }, 1000);
-  }
-  function stopTick(){ if(live && live.tickHandle){ clearInterval(live.tickHandle); live.tickHandle=null; } }
-
-  function updateTimerUI(){
-    var box=document.getElementById("timerbox"); if(!box) return;
-    var clock=document.getElementById("clock");
-    var cap=document.getElementById("timercap");
-    clock.textContent = live.awaiting ? "SCAN NOW" : fmtClock(live.remaining);
-    if(live.awaiting){ clock.style.fontSize="34px"; } else { clock.style.fontSize=""; }
-    cap.textContent = live.paused ? "paused" : (live.awaiting ? "record what you see now" : "next scan");
-    box.classList.toggle("due", live.awaiting && !live.paused);
-    box.classList.toggle("paused", live.paused);
-  }
-
-  function cue(){
-    if(!live.session) return;
-    if(state.sound) beep();
-    if(navigator.vibrate) try{ navigator.vibrate([120,60,120]); }catch(e){}
-  }
-  function beep(){
-    try{
-      if(!live.audio) live.audio = new (window.AudioContext||window.webkitAudioContext)();
-      var ctx=live.audio;
-      if(ctx.state==="suspended") ctx.resume();
-      var o=ctx.createOscillator(), g=ctx.createGain();
-      o.type="sine"; o.frequency.value=880;
-      o.connect(g); g.connect(ctx.destination);
-      var t=ctx.currentTime;
-      g.gain.setValueAtTime(0.0001,t);
-      g.gain.exponentialRampToValueAtTime(0.25,t+0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001,t+0.4);
-      o.start(t); o.stop(t+0.42);
-    }catch(e){}
-  }
-
-  function requestWake(){
-    if(!("wakeLock" in navigator)) return;
-    navigator.wakeLock.request("screen").then(function(wl){
-      live.wakeLock=wl;
-      wl.addEventListener("release", function(){});
-    }).catch(function(){});
-  }
-  function releaseWake(){
-    if(live && live.wakeLock){ try{ live.wakeLock.release(); }catch(e){} live.wakeLock=null; }
-  }
-  document.addEventListener("visibilitychange", function(){
-    if(document.visibilityState==="visible" && live && view.name==="observe" && !live.wakeLock) requestWake();
   });
+  return {dyadic:dy, cluster:cl, chain:ch, polyadic:cl+ch, events:sess.events.length, scans:sess.currentScan, clSum, clN, chSum, chN};
+}
+function groupSummary(){
+  const map = new Map();
+  state.sessions.forEach(s=>{
+    const key = [s.species, s.group||"", s.institution||""].join("\u0000");
+    if(!map.has(key)) map.set(key,{species:s.species,group:s.group||"",institution:s.institution||"",sessions:0,scans:0,events:0,dyadic:0,cluster:0,chain:0,clSum:0,clN:0,chSum:0,chN:0});
+    const g = map.get(key), t = totals(s);
+    g.sessions++; g.scans+=t.scans; g.events+=t.events; g.dyadic+=t.dyadic; g.cluster+=t.cluster; g.chain+=t.chain;
+    g.clSum+=t.clSum; g.clN+=t.clN; g.chSum+=t.chSum; g.chN+=t.chN;
+  });
+  return [...map.values()].sort((a,b)=>
+    String(a.species).localeCompare(b.species) ||
+    String(a.group).localeCompare(b.group) ||
+    String(a.institution).localeCompare(b.institution));
+}
 
-  function stopLive(clear){
-    stopTick(); releaseWake();
-    if(clear) live=null;
+/* ---------- mutations ---------- */
+let armed = null; // ephemeral: {subtype, size} while choosing a polyadic size
+let censusEdit = {start:false, end:false}; // which census editors are open
+
+function addEvent(type, subtype, size){
+  const s = curSession(); if(!s) return;
+  const ev = { id:uid(), scan:s.currentScan, time:nowISO(), type, subtype:subtype||null, participants:"", notes:"" };
+  if(type==="polyadic") ev.size = Math.max(3, parseInt(size,10)||3);
+  armed = null;
+  s.events.push(ev);
+  save(); render(); flashLog();
+}
+function removeEvent(id){
+  const s = curSession(); if(!s) return;
+  s.events = s.events.filter(e=>e.id!==id); save(); render();
+}
+function nextScan(){
+  const s = curSession(); if(!s) return;
+  s.currentScan++; save(); render();
+  toast("Scan "+s.currentScan+" started");
+}
+function startSession(){
+  const sp = $("#f-species").value;
+  const gp = $("#f-group") ? $("#f-group").value : "";
+  const inst = instFor(sp, gp);
+  const ob = $("#f-observer").value.trim();
+  const dt = $("#f-date").value || todayStr();
+  const nt = $("#f-notes").value.trim();
+  const gnRaw = $("#f-groupn") ? $("#f-groupn").value.trim() : "";
+  const gn = gnRaw==="" ? null : Math.max(0, parseInt(gnRaw,10)||0);
+  const s = { id:uid(), species:sp, group:gp, institution:inst, observer:ob, date:dt, notes:nt,
+    groupN:gn, scanOOV:{}, currentScan:1, events:[],
+    startedAt:nowISO(), elapsedSec:0, runningSince:nowISO(),
+    census:{start:{sizes:[],time:null}, end:{sizes:[],time:null}} };
+  state.sessions.unshift(s); state.currentSessionId=s.id;
+  censusEdit = {start:true, end:false};
+  save(); render();
+  toast("Session started");
+}
+function resumeSession(id){
+  state.currentSessionId=id; const s=curSession();
+  if(s){ normSession(s); sessResume(s); censusEdit={start:s.census.start.sizes.length===0, end:false}; }
+  save(); render();
+}
+function endSession(){ const s=curSession(); if(s) sessPause(s); state.currentSessionId=null; save(); render(); }
+function finishSession(){
+  const s=curSession(); if(!s) return;
+  if(((s.census.end&&s.census.end.sizes)||[]).length===0){ document.getElementById("endmodal").classList.add("show"); return; }
+  endSession(); toast("Session ended");
+}
+function deleteSession(id){
+  const s = state.sessions.find(x=>x.id===id); if(!s) return;
+  if(!confirm("Delete this session for "+s.species+" · "+s.group+"?\nThis removes "+s.events.length+" grooming record(s) and cannot be undone.")) return;
+  state.sessions = state.sessions.filter(x=>x.id!==id);
+  if(state.currentSessionId===id) state.currentSessionId=null;
+  save(); render();
+}
+function editField(id, field, val){
+  for(const s of state.sessions){ const e = s.events.find(e=>e.id===id); if(e){
+    if(field==="size") e.size = Math.max(3, parseInt(val,10)||3); else e[field]=val;
+    save(); return; } }
+}
+
+/* ============================ RENDER ============================ */
+function render(){
+  document.querySelectorAll(".tab").forEach(t=> t.setAttribute("aria-selected", String(t.dataset.tab===state.activeTab)));
+  if(state.activeTab==="record") renderRecord();
+  else if(state.activeTab==="summary") renderSummary();
+  else if(state.activeTab==="data") renderData();
+  else renderSettings();
+  if(state.activeTab==="record") Timer.mount();
+}
+
+/* ---------- Record ---------- */
+function renderRecord(){
+  const s = curSession();
+  if(!s){ renderStart(); return; }
+  const t = totals(s);
+  const scanEvents = s.events.filter(e=>e.scan===s.currentScan);
+
+  app.innerHTML = `
+    <div class="card">
+      <div class="sess-banner">
+        <div>
+          <div class="sess-id"><span class="sp">${esc(s.species)}</span>${s.group?'<span class="gp">'+esc(s.group)+'</span>':''}</div>
+          <div class="sess-meta">${s.institution?("<b>"+esc(s.institution)+"</b> · "):""}${s.observer?("Obs. "+esc(s.observer)+" · "):""}<b>${esc(s.date)}</b>${s.notes?(" · "+esc(s.notes)):""}</div>
+        </div>
+        <div class="sess-clock">
+          <div class="clk-lbl">Session time</div>
+          <div class="clock-face ${s.runningSince?"run":""}"><span class="dot"></span><span id="sessClock">${fmtDur(sessElapsed(s))}</span></div>
+          <div class="btn-row">
+            <button class="btn small" data-action="sess-toggle">${s.runningSince?"Pause":"Resume"}</button>
+            <button class="btn ghost small" data-action="switch-session">Switch</button>
+            <button class="btn small" data-action="end-session">End session</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="console">
+        <div class="scan-read">
+          <div class="lbl">Scan</div>
+          <div class="num" id="scanNum">${s.currentScan}</div>
+        </div>
+        <div class="scan-ctrls">
+          <button class="btn accent" data-action="next-scan">Next scan &rarr;</button>
+          <div class="scan-note"><b>${scanEvents.length}</b> grooming ${scanEvents.length===1?"bout":"bouts"} logged this scan. Record every bout you see now, then advance. A scan with none is still valid data.</div>
+          <div class="counts-row">
+            <label class="cfield"><span>Group N today</span>
+              <input type="number" min="0" step="1" inputmode="numeric" data-session-n value="${s.groupN!=null?s.groupN:""}" placeholder="—">
+            </label>
+            <label class="cfield"><span>Not in view (scan ${s.currentScan})</span>
+              <input type="number" min="0" step="1" inputmode="numeric" data-scan-oov value="${(s.scanOOV&&s.scanOOV[s.currentScan]!=null)?s.scanOOV[s.currentScan]:""}" placeholder="0">
+            </label>
+            ${s.groupN!=null?`<div class="cfield inview"><span>In view now</span><b>${Math.max(0, s.groupN - (parseInt(s.scanOOV&&s.scanOOV[s.currentScan],10)||0))}</b><span class="of">of ${s.groupN}</span></div>`:""}
+          </div>
+        </div>
+      </div>
+
+      <div class="timer" id="timerPanel"></div>
+    </div>
+
+    ${censusCard("start", s)}
+
+    <div class="card">
+      <h2>Log a grooming bout — tap once per bout observed</h2>
+      <div class="log-grid">
+        <button class="logbtn dy" data-action="log" data-type="dyadic">
+          <span class="ico">${ICON.dyadic}</span>
+          <span class="t">Dyadic</span>
+          <span class="s">Two individuals</span>
+          <span class="tally">SESSION <b>${t.dyadic}</b></span>
+        </button>
+        <button class="logbtn po${armed&&armed.subtype==="cluster"?" armed":""}" data-action="arm" data-sub="cluster">
+          <span class="ico">${ICON.cluster}</span>
+          <span class="t">Polyadic · Cluster</span>
+          <span class="s">3+ converging on one</span>
+          <span class="tally">SESSION <b>${t.cluster}</b></span>
+        </button>
+        <button class="logbtn po${armed&&armed.subtype==="chain"?" armed":""}" data-action="arm" data-sub="chain">
+          <span class="ico">${ICON.chain}</span>
+          <span class="t">Polyadic · Chain</span>
+          <span class="s">3+ in a line, A&ndash;B&ndash;C</span>
+          <span class="tally">SESSION <b>${t.chain}</b></span>
+        </button>
+      </div>
+      ${armed ? armPicker() : ""}
+
+      <div style="margin-top:14px">
+        <div class="k" style="font-size:12.5px;color:var(--ink-soft);font-weight:600;margin-bottom:7px">This scan (#${s.currentScan})</div>
+        <div class="chips" id="chips">
+          ${scanEvents.length ? scanEvents.map(chip).join("") : '<span class="empty-scan">No grooming logged yet for this scan.</span>'}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Session tallies</h2>
+      <div class="tallies">
+        <div class="tally-cell"><div class="k">Scans</div><div class="v">${t.scans}</div></div>
+        <div class="tally-cell dyv"><div class="k">Dyadic</div><div class="v">${t.dyadic}</div></div>
+        <div class="tally-cell pov"><div class="k">Polyadic</div><div class="v">${t.polyadic}</div><div class="sub">${t.cluster} cluster · ${t.chain} chain</div></div>
+        <div class="tally-cell"><div class="k">Total bouts</div><div class="v">${t.events}</div></div>
+      </div>
+    </div>
+
+    ${censusCard("end", s)}
+
+    ${s.events.length ? sessionLog(s) : ""}
+  `;
+}
+
+function chip(e){
+  const cls = e.type==="dyadic" ? "dy":"po";
+  const label = e.type==="dyadic" ? "Dyadic" : ("Poly · "+(e.subtype==="chain"?"chain":"cluster")+" &times;"+(e.size||"?"));
+  return `<span class="chip ${cls}">${label}<button class="x" data-action="rm" data-id="${e.id}" aria-label="Remove">&times;</button></span>`;
+}
+
+function censusCard(phase, s){
+  const c = s.census[phase], sizes = c.sizes;
+  const n = sizes.length, total = sizes.reduce((a,b)=>a+(parseInt(b,10)||0),0);
+  const editing = censusEdit[phase];
+  const title = phase==="start" ? "Start-of-session census" : "End-of-session census";
+  const sub = phase==="start" ? "subgroups present at the start" : "subgroups present at the end";
+
+  if(!editing && n>0){
+    return `<div class="card"><div class="census-sum">
+      <div>
+        <div class="census-head">${title}</div>
+        <div class="big"><b>${n}</b> subgroup${n===1?"":"s"} · <b>${total}</b> individuals <span class="faint">(sizes: ${sizes.join(", ")})</span></div>
+      </div>
+      <button class="btn small" data-action="census-edit" data-phase="${phase}">Edit</button>
+    </div></div>`;
   }
+  if(!editing && n===0){
+    return `<div class="card"><div class="census-sum">
+      <div>
+        <div class="census-head">${title} <span class="faint">${sub}</span></div>
+        <div class="census-tot">Not recorded yet.</div>
+      </div>
+      <button class="btn small ${phase==="start"?"primary":""}" data-action="census-edit" data-phase="${phase}">Record census</button>
+    </div></div>`;
+  }
+  // editor
+  const rows = sizes.map((sz,i)=>`
+    <div class="subrow">
+      <span class="lab">Subgroup ${i+1}</span>
+      <input type="number" min="1" step="1" inputmode="numeric" data-census="${phase}" data-idx="${i}" value="${sz}">
+      <span class="faint" style="font-size:12px">individuals</span>
+      <button class="icobtn" data-action="census-del" data-phase="${phase}" data-idx="${i}" aria-label="Remove subgroup">&times;</button>
+    </div>`).join("");
+  return `<div class="card"${phase==="end"?' id="endCensus"':''}>
+    <div class="census-head">${title} <span class="faint">${sub}</span></div>
+    <div class="subrows">${rows || '<div class="census-tot" style="margin:6px 0">No subgroups yet — add one for each cluster of animals you can see.</div>'}</div>
+    ${n>0?`<div class="census-tot"><b>${n}</b> subgroup${n===1?"":"s"} · <b>${total}</b> individuals total</div>`:""}
+    <div class="btn-row" style="margin-top:12px">
+      <button class="btn small" data-action="census-add" data-phase="${phase}">+ Add subgroup</button>
+      ${n>0
+        ? `<button class="btn small primary" data-action="census-done" data-phase="${phase}">Done</button>`
+        : `<button class="btn small ghost" data-action="census-done" data-phase="${phase}">Later</button>`}
+    </div>
+  </div>`;
+}
 
-  function endSession(){
-    var s=live?live.session:getSession(view.sessionId);
-    confirmModal("End session?", (s? s.scans.length : 0)+" scan"+((s&&s.scans.length===1)?"":"s")+" saved. You can reopen it any time to view, export, or add more scans.", "End session", function(){
-      stopLive(true);
-      go("data", s.id);
+function armPicker(){
+  const st = armed.subtype, name = st==="chain" ? "chain" : "cluster";
+  const nums = [3,4,5,6,7,8].map(n=>`<button class="numbtn" data-action="arm-log" data-size="${n}">${n}</button>`).join("");
+  return `
+    <div class="arm">
+      <div class="arm-q"><span class="ico">${st==="chain"?ICON.chain:ICON.cluster}</span>How many individuals in this ${name}?</div>
+      <div class="arm-nums">${nums}</div>
+      <div class="arm-more">
+        <span class="lbl">more:</span>
+        <span class="stepper"><button data-action="arm-dec" aria-label="Fewer">&minus;</button><span class="sv">${armed.size}</span><button data-action="arm-inc" aria-label="More">+</button></span>
+        <button class="btn primary small" data-action="arm-log" data-size="${armed.size}">Log ${name} of ${armed.size}</button>
+        <button class="btn ghost small" data-action="arm-cancel">Cancel</button>
+      </div>
+    </div>`;
+}
+
+function sessionLog(s){
+  const rows = [...s.events].sort((a,b)=> a.scan-b.scan || a.time.localeCompare(b.time)).map(e=>`
+    <tr>
+      <td class="num">${e.scan}</td>
+      <td>${e.type==="dyadic"?'<span class="pill dy">dyadic</span>':'<span class="pill po">poly · '+(e.subtype==="chain"?"chain":"cluster")+'</span>'}</td>
+      <td>${e.type==="polyadic"
+          ? '<input class="icell szcell" type="number" min="3" step="1" data-edit="size" data-id="'+e.id+'" value="'+(e.size||3)+'">'
+          : '<span class="mini">2</span>'}</td>
+      <td class="mini">${fmtClock(e.time)}</td>
+      <td><input class="icell" data-edit="participants" data-id="${e.id}" value="${esc(e.participants)}" placeholder="e.g. AB, CD or A&gt;B"></td>
+      <td><input class="icell" data-edit="notes" data-id="${e.id}" value="${esc(e.notes)}" placeholder="note"></td>
+      <td><button class="icobtn" data-action="rm" data-id="${e.id}" aria-label="Delete">&times;</button></td>
+    </tr>`).join("");
+  return `
+    <div class="card flush">
+      <div style="padding:14px 16px 0"><h2 style="margin:0">Full session log <span class="faint">(${s.events.length})</span></h2>
+      <p class="hint" style="margin:6px 0 0">Participant IDs and notes are optional. Everything here goes into the CSV export.</p></div>
+      <div class="tbl-scroll" style="margin-top:12px">
+        <table>
+          <thead><tr><th class="num">Scan</th><th>Type</th><th>Size</th><th>Time</th><th>Participants</th><th>Notes</th><th></th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function renderStart(){
+  const withGroups = speciesWithGroups();
+  const paused = state.sessions;
+  const first = withGroups[0];
+  const firstGroups = first ? first.groups.filter(g=>g.name && g.name.trim()) : [];
+  app.innerHTML = `
+    <div class="card">
+      <h2>Start an observation session</h2>
+      ${withGroups.length ? `
+        <div class="form-2">
+          <label class="fld"><span>Species</span>
+            <select id="f-species">${withGroups.map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`).join("")}</select>
+          </label>
+          <label class="fld"><span>Group</span>
+            <select id="f-group">${firstGroups.map(g=>`<option value="${esc(g.name)}">${esc(g.name)}</option>`).join("")}</select>
+          </label>
+          <label class="fld"><span>Institution <span class="faint">(from group)</span></span>
+            <input type="text" id="f-inst-echo" value="${esc(firstGroups[0]?firstGroups[0].institution:"")}" readonly tabindex="-1" aria-readonly="true" style="background:var(--surface-2); color:var(--ink-soft); cursor:default" placeholder="—">
+          </label>
+          <label class="fld"><span>Animals in group today <span class="faint">(N, optional)</span></span>
+            <input type="number" min="0" step="1" inputmode="numeric" id="f-groupn" placeholder="e.g. 7" autocomplete="off">
+          </label>
+          <label class="fld"><span>Observer <span class="faint">(optional)</span></span>
+            <input type="text" id="f-observer" placeholder="Your initials" autocomplete="off">
+          </label>
+          <label class="fld"><span>Date</span>
+            <input type="date" id="f-date" value="${todayStr()}">
+          </label>
+        </div>
+        <label class="fld"><span>Session notes <span class="faint">(optional)</span></span>
+          <input type="text" id="f-notes" placeholder="Weather, start time…" autocomplete="off">
+        </label>
+        <button class="btn primary" data-action="start-session">Start session</button>
+        <p class="hint">Pick the species, then its group and institution (configure these in <b>Settings</b>). <b>N</b> is how many animals are in the group today; at each scan you can also log how many are <b>not in view</b>, so in-view N per scan = N − not-in-view. You can record many sessions per group.</p>
+      ` : `
+        <p class="muted">No species with groups are set up yet. Add species, their groups, and institutions in <b>Settings</b> first.</p>
+        <button class="btn primary" data-action="goto-settings">Go to settings</button>
+      `}
+    </div>
+
+    ${paused.length ? `
+    <div class="card flush">
+      <div style="padding:14px 16px 0"><h2 style="margin:0">Resume a session <span class="faint">(${paused.length})</span></h2></div>
+      <div class="sess-list" style="padding:12px 16px 16px">
+        ${paused.map(s=>{const t=totals(s);return `
+          <div class="sess-item">
+            <div class="info">
+              <div class="l1">${esc(s.species)}${s.group ? ' · <span class="gp">'+esc(s.group)+'</span>' : ''}</div>
+              <div class="l2">${s.institution?esc(s.institution)+' · ':''}${esc(s.date)} · ${t.scans} scans · ${t.dyadic} dy / ${t.polyadic} poly</div>
+            </div>
+            <div class="row-actions">
+              <button class="btn small" data-action="resume" data-id="${s.id}">Resume</button>
+              <button class="icobtn" data-action="del-session" data-id="${s.id}" aria-label="Delete session">&times;</button>
+            </div>
+          </div>`;}).join("")}
+      </div>
+    </div>` : ""}
+  `;
+  const selS = $("#f-species");
+  if(selS) selS.addEventListener("change", e=>{
+    const groups = groupsOf(e.target.value);
+    const selG = $("#f-group");
+    if(selG) selG.innerHTML = groups.map(g=>`<option value="${esc(g.name)}">${esc(g.name)}</option>`).join("");
+    const ec = $("#f-inst-echo"); if(ec) ec.value = groups[0] ? groups[0].institution : "";
+  });
+  const selG = $("#f-group");
+  if(selG) selG.addEventListener("change", e=>{
+    const ec = $("#f-inst-echo"); if(ec) ec.value = instFor($("#f-species").value, e.target.value);
+  });
+}
+
+/* ---------- Summary ---------- */
+function renderSummary(){
+  const rows = groupSummary();
+  if(!rows.length){ app.innerHTML = emptyCard("No data yet","Start recording on the Record tab. Per-species counts of dyadic and polyadic grooming will appear here."); return; }
+  const grand = rows.reduce((a,g)=>{a.sessions+=g.sessions;a.scans+=g.scans;a.events+=g.events;a.dyadic+=g.dyadic;a.cluster+=g.cluster;a.chain+=g.chain;a.clSum+=g.clSum;a.clN+=g.clN;a.chSum+=g.chSum;a.chN+=g.chN;return a;},{sessions:0,scans:0,events:0,dyadic:0,cluster:0,chain:0,clSum:0,clN:0,chSum:0,chN:0});
+  const meanSub = (sum,n)=> n ? '<div class="mini">avg '+fmtMean(mean(sum,n))+'</div>' : "";
+
+  const body = rows.map(g=>`
+    <tr>
+      <td><b>${esc(g.species)}</b></td>
+      <td>${esc(g.group)||"—"}</td>
+      <td>${esc(g.institution)||"—"}</td>
+      <td class="num">${g.sessions}</td>
+      <td class="num">${g.scans}</td>
+      <td class="num">${g.dyadic}</td>
+      <td class="num">${g.cluster+g.chain}</td>
+      <td class="num">${g.cluster}${meanSub(g.clSum,g.clN)}</td>
+      <td class="num">${g.chain}${meanSub(g.chSum,g.chN)}</td>
+      <td class="num">${g.events}</td>
+    </tr>`).join("");
+
+  const totalRow = `<tr class="grp-total"><td>All</td><td></td><td></td><td class="num">${grand.sessions}</td><td class="num">${grand.scans}</td><td class="num">${grand.dyadic}</td><td class="num">${grand.cluster+grand.chain}</td><td class="num">${grand.cluster}${meanSub(grand.clSum,grand.clN)}</td><td class="num">${grand.chain}${meanSub(grand.chSum,grand.chN)}</td><td class="num">${grand.events}</td></tr>`;
+
+  app.innerHTML = `
+    <div class="card">
+      <h2>Grand totals — all species</h2>
+      <div class="tallies">
+        <div class="tally-cell dyv"><div class="k">Dyadic bouts</div><div class="v">${grand.dyadic}</div></div>
+        <div class="tally-cell pov"><div class="k">Polyadic bouts</div><div class="v">${grand.cluster+grand.chain}</div><div class="sub">${grand.cluster} cluster (avg ${fmtMean(mean(grand.clSum,grand.clN))}) · ${grand.chain} chain (avg ${fmtMean(mean(grand.chSum,grand.chN))})</div></div>
+        <div class="tally-cell"><div class="k">Scans</div><div class="v">${grand.scans}</div></div>
+        <div class="tally-cell"><div class="k">Total bouts</div><div class="v">${grand.events}</div></div>
+      </div>
+      <p class="hint">Counts are pooled per group — each species × group × institution — across all its sessions. “Scans” is the total number of scan points taken; divide bouts by scans for a rate per scan. “avg” is the mean number of individuals per cluster or chain.</p>
+    </div>
+
+    <div class="card flush">
+      <div style="padding:14px 16px 0"><h2 style="margin:0">Per group</h2></div>
+      <div class="tbl-scroll" style="margin-top:12px">
+        <table>
+          <thead><tr><th>Species</th><th>Group</th><th>Institution</th><th class="num">Sess.</th><th class="num">Scans</th><th class="num">Dyadic</th><th class="num">Polyadic</th><th class="num">— cluster</th><th class="num">— chain</th><th class="num">Bouts</th></tr></thead>
+          <tbody>${body}${totalRow}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- Data & export ---------- */
+function renderData(){
+  const all = [];
+  state.sessions.forEach(s=> s.events.forEach(e=> all.push({s,e})));
+  all.sort((a,b)=> a.e.time.localeCompare(b.e.time));
+
+  const rows = all.length ? all.map(({s,e})=>`
+    <tr>
+      <td>${esc(s.species)}</td>
+      <td>${esc(s.group)||"—"}</td>
+      <td class="mini">${esc(s.institution)||"—"}</td>
+      <td class="mini">${esc(s.date)}</td>
+      <td class="num">${e.scan}</td>
+      <td>${e.type==="dyadic"?'<span class="pill dy">dyadic</span>':'<span class="pill po">poly</span>'}</td>
+      <td>${e.type==="polyadic"?(e.subtype==="chain"?"chain":"cluster"):"—"}</td>
+      <td class="num">${e.type==="dyadic"?2:(e.size||"—")}</td>
+      <td class="mini">${esc(e.participants)||"—"}</td>
+      <td class="mini">${esc(e.notes)||"—"}</td>
+    </tr>`).join("") : "";
+
+  app.innerHTML = `
+    <div class="card">
+      <h2>Export</h2>
+      <div class="btn-row">
+        <button class="btn primary" data-action="export-events" ${all.length?"":"disabled"}>Bouts (CSV)</button>
+        <button class="btn" data-action="export-scans" ${state.sessions.length?"":"disabled"}>Scans (CSV)</button>
+        <button class="btn" data-action="export-sessions" ${state.sessions.length?"":"disabled"}>Sessions (CSV)</button>
+        <button class="btn" data-action="export-summary" ${all.length?"":"disabled"}>Group summary (CSV)</button>
+        <button class="btn" data-action="export-census" ${state.sessions.some(s=>s.census&&(s.census.start.sizes.length||s.census.end.sizes.length))?"":"disabled"}>Subgroup census (CSV)</button>
+        <button class="btn ghost" data-action="export-backup" ${state.sessions.length?"":"disabled"}>Backup (JSON)</button>
+      </div>
+      <p class="hint">All CSVs open directly in Excel, R, or Python. <b>Bouts</b>: one row per grooming bout. <b>Scans</b>: one row per scan with animals not-in-view, group N, and in-view N — your per-scan opportunity denominator. <b>Sessions</b>: one row per session with duration, group N, scan/grooming counts, and start/end subgroup totals. <b>Group summary</b>: one row per species × group × institution, pooled across sessions. <b>Subgroup census</b>: one row per subgroup with its size. Every file carries species, group, and institution. Keep a JSON backup so you never lose raw data.</p>
+    </div>
+
+    ${all.length ? `
+    <div class="card flush">
+      <div style="padding:14px 16px 0"><h2 style="margin:0">All bouts <span class="faint">(${all.length})</span></h2></div>
+      <div class="tbl-scroll" style="margin-top:12px;max-height:60vh;overflow:auto">
+        <table>
+          <thead><tr><th>Species</th><th>Group</th><th>Institution</th><th>Date</th><th class="num">Scan</th><th>Type</th><th>Subtype</th><th class="num">Size</th><th>Participants</th><th>Notes</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </div>` : emptyCard("Nothing recorded yet","Bouts you log will be listed here and included in the CSV export.")}
+  `;
+}
+
+/* ---------- Settings ---------- */
+function commitConfigInputs(){
+  const blocks = document.querySelectorAll("#spList .sp-block");
+  if(!blocks.length) return;
+  const list = [];
+  blocks.forEach(b=>{
+    const nameEl = b.querySelector(".sp-name");
+    const groups = [];
+    b.querySelectorAll(".grp-row").forEach(r=>{
+      const n = r.querySelector(".grp-name"), inst = r.querySelector(".grp-inst");
+      groups.push({ name: n?n.value:"", institution: inst?inst.value:"" });
     });
-  }
+    list.push({ name: nameEl?nameEl.value:"", groups });
+  });
+  state.speciesList = list;
+}
+function renderSettings(){
+  app.innerHTML = `
+    <div class="card">
+      <h2>Species, groups &amp; institutions</h2>
+      <p class="hint" style="margin-top:0">Add each species, then one or more groups under it, each with the institution where it is studied (e.g. Zoo Zürich, Zoo Basel). These are the choices when you start a session; you can run many sessions per group.</p>
+      <div id="spList">
+        ${state.speciesList.map((sp,si)=>`
+        <div class="sp-block" data-si="${si}">
+          <div class="sp-block-head">
+            <label class="fld"><span>Species ${si+1}</span><input type="text" class="sp-name" value="${esc(sp.name||"")}" placeholder="Species name"></label>
+            <button class="icobtn" data-action="species-del" data-si="${si}" ${state.speciesList.length<=1?"disabled":""} aria-label="Remove species ${si+1}">&times;</button>
+          </div>
+          <div class="grp-list">
+            ${(sp.groups||[]).map((g,gi)=>`
+              <div class="grp-row" data-gi="${gi}">
+                <input type="text" class="grp-name" value="${esc(g.name||"")}" placeholder="Group name (e.g. Troop A)">
+                <input type="text" class="grp-inst" value="${esc(g.institution||"")}" placeholder="Institution (e.g. Zoo Zürich)">
+                <button class="icobtn" data-action="group-del" data-si="${si}" data-gi="${gi}" aria-label="Remove group">&times;</button>
+              </div>`).join("")}
+            <div><button class="btn small ghost" data-action="group-add" data-si="${si}">+ Add group</button></div>
+          </div>
+        </div>`).join("")}
+      </div>
+      <div class="btn-row" style="margin-top:2px">
+        <button class="btn small" data-action="species-add">+ Add species</button>
+      </div>
+      <div style="margin-top:14px"><button class="btn primary" data-action="save-config">Save</button></div>
+    </div>
 
-  // ---------- DATA (per session) ----------
-  function renderData(app){
-    var s=getSession(view.sessionId);
-    if(!s){ go("home"); return; }
+    <div class="card">
+      <h2>Default scan interval</h2>
+      <p class="hint" style="margin-top:0">Pre-fills the scan timer on the Record tab. Set the seconds between scan points.</p>
+      <label class="fld" style="max-width:220px"><span>Seconds</span><input type="number" id="def-interval" min="5" step="5" value="${state.defaultInterval}"></label>
+      <button class="btn primary" data-action="save-interval">Save interval</button>
+    </div>
 
-    var back=el('<button class="btn ghost small" style="width:auto;margin-top:6px">‹ All sessions</button>');
-    back.onclick=function(){ go("home"); };
-    app.appendChild(back);
+    <div class="card">
+      <h2>Restore from backup</h2>
+      <p class="hint" style="margin-top:0">Load a JSON backup exported from this tool. This replaces all current data.</p>
+      <div class="btn-row">
+        <label class="btn" style="cursor:pointer">Choose backup file<input type="file" id="import-file" accept="application/json,.json" style="display:none"></label>
+      </div>
+    </div>
 
-    app.appendChild(el('<h1 class="page">'+esc(s.group)+'</h1>'));
-    var metabits=[esc(s.species)];
-    if(s.institution) metabits.push(esc(s.institution));
-    metabits.push(fmtDate(s.startedAt));
-    if(s.observer) metabits.push(esc(s.observer));
-    app.appendChild(el('<p class="sub">'+metabits.join(" · ")+'</p>'));
+    <div class="card">
+      <h2>Danger zone</h2>
+      <p class="hint" style="margin-top:0">Sessions and bouts are stored only in this browser. Export a backup before clearing.</p>
+      <button class="btn danger" data-action="clear-all">Erase all data</button>
+    </div>
+  `;
+}
 
-    var editBtn=el('<button class="btn ghost small" style="width:auto;margin:-6px 0 4px">Edit group &amp; institution</button>');
-    editBtn.onclick=function(){ editSessionModal(s); };
-    app.appendChild(editBtn);
+function emptyCard(title, msg){
+  return `<div class="card"><h2 style="margin-bottom:6px">${esc(title)}</h2><p class="muted" style="margin:0;font-size:14px">${esc(msg)}</p></div>`;
+}
 
-    // summary panel
-    var totalInd=0; s.scans.forEach(function(sc){ for(var k in sc.counts) totalInd+=sc.counts[k]; });
-    var present=presentN(s);
-    var nivScans=s.scans.filter(function(sc){ return sc.notInView!=null; });
-    var meanNIV = nivScans.length ? (nivScans.reduce(function(a,sc){return a+sc.notInView;},0)/nivScans.length) : null;
-    var sumPanel=el('<div class="panel pad" style="display:flex;gap:22px;flex-wrap:wrap"></div>');
-    sumPanel.innerHTML=
-      statBlock(s.scans.length,"scans")+
-      statBlock(present!=null?present:"—","N present")+
-      statBlock((s.interval<60? s.interval+"s" : (s.interval/60)+"m"),"interval")+
-      statBlock(s.behaviours.length,"behaviours")+
-      (meanNIV!=null? statBlock(meanNIV.toFixed(1),"mean not in view") : "")+
-      statBlock(totalInd,"records");
-    app.appendChild(sumPanel);
-
-    // actions
-    var actions=el('<div class="btnrow" style="margin-top:14px"></div>');
-    var cont=el('<button class="btn primary small" style="flex:1">Continue scanning</button>');
-    cont.onclick=function(){ go("observe", s.id); };
-    var exp=el('<button class="btn small" style="flex:1">Export CSV</button>');
-    exp.onclick=function(){ openExport([s], safeName(s.group)); };
-    actions.appendChild(cont); actions.appendChild(exp);
-    app.appendChild(actions);
-
-    // grooming quick-look: mean count per grooming behaviour (nice for the stated purpose)
-    var groomKeys = s.behaviours.filter(function(b){ return /groom/i.test(b.name); });
-    if(groomKeys.length && s.scans.length){
-      app.appendChild(el('<div class="rowlabel">Grooming — mean individuals per scan</div>'));
-      var gp=el('<div class="panel pad"></div>');
-      groomKeys.forEach(function(b){
-        var sum=0; s.scans.forEach(function(sc){ sum+=(sc.counts[b.name]||0); });
-        var mean=(sum/s.scans.length);
-        gp.appendChild(el('<div class="beh"><div class="name">'+esc(b.name)+'</div>'+
-          '<div class="num" style="font-family:var(--disp);font-weight:600;font-size:18px">'+mean.toFixed(2)+'</div></div>'));
-      });
-      app.appendChild(gp);
-    }
-
-    // polyadic structure summary
-    s.behaviours.filter(function(b){ return b.structured; }).forEach(function(b){
-      var name=b.name, bouts=[];
-      s.scans.forEach(function(sc){
-        var arr = sc.groups && sc.groups[name] ? sc.groups[name] : [];
-        arr.forEach(function(g){ bouts.push(g); });
-      });
-      if(!bouts.length) return;
-      var chains=bouts.filter(function(x){return x.type==="chain";}).length;
-      var clusters=bouts.filter(function(x){return x.type==="cluster";}).length;
-      var meanSize=bouts.reduce(function(a,x){return a+x.size;},0)/bouts.length;
-      var maxSize=bouts.reduce(function(a,x){return Math.max(a,x.size);},0);
-      app.appendChild(el('<div class="rowlabel">'+esc(name)+' — structure</div>'));
-      var sp=el('<div class="panel pad" style="display:flex;gap:22px;flex-wrap:wrap"></div>');
-      sp.innerHTML = statBlock(bouts.length,"bouts")+statBlock(clusters,"clusters")+statBlock(chains,"chains")+statBlock(meanSize.toFixed(1),"mean size")+statBlock(maxSize,"max size");
-      app.appendChild(sp);
+/* ============================ TIMER ============================ */
+const Timer = (() => {
+  let intervalSec = state.defaultInterval, remaining = state.defaultInterval, running=false, autoAdvance=false, handle=null;
+  function mount(){
+    const panel = $("#timerPanel"); if(!panel) return;
+    panel.innerHTML = `
+      <div class="timer-head">
+        <div class="timer-face" id="tface">${mmss(remaining)}</div>
+        <div class="btn-row">
+          <button class="btn small" data-action="timer-toggle">${running?"Pause":"Start"} timer</button>
+          <button class="btn small ghost" data-action="timer-reset">Reset</button>
+        </div>
+      </div>
+      <div class="timer-bar"><i id="tbar" style="width:${intervalSec?100*remaining/intervalSec:0}%"></i></div>
+      <div class="timer-row">
+        <span class="timer-set">Interval <input type="number" min="5" step="5" id="tinterval" value="${intervalSec}"> s</span>
+        <label class="chk"><input type="checkbox" id="tauto" ${autoAdvance?"checked":""}> auto-advance scan</label>
+      </div>`;
+    panel.querySelector("#tinterval").addEventListener("change", e=>{
+      const v = Math.max(5, parseInt(e.target.value,10)||intervalSec);
+      intervalSec=v; if(!running){ remaining=v; paint(); }
     });
-
-    // scans table
-    app.appendChild(el('<div class="rowlabel">Scans</div>'));
-    if(s.scans.length===0){
-      app.appendChild(el('<div class="panel"><div class="empty" style="padding:30px">No scans recorded yet.</div></div>'));
-    } else {
-      var tp=el('<div class="panel"><div class="tablescroll"></div></div>');
-      var tbl=el('<table></table>');
-      var showNIV = s.scans.some(function(sc){ return sc.notInView!=null; });
-      var head='<tr><th>#</th><th>Time</th>'+s.behaviours.map(function(b){return '<th>'+esc(b.name)+'</th>';}).join("")+'<th>Total</th>'+(showNIV?'<th>Not in view</th>':'')+'</tr>';
-      var thead=el('<thead>'+head+'</thead>'); tbl.appendChild(thead);
-      var tb=el('<tbody></tbody>');
-      s.scans.forEach(function(sc){
-        var tot=0; s.behaviours.forEach(function(b){ tot+=(sc.counts[b.name]||0); });
-        var tt=new Date(sc.timestamp);
-        var tstr=tt.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-        var cells=s.behaviours.map(function(b){ return '<td class="n">'+(sc.counts[b.name]||0)+'</td>'; }).join("");
-        var nivCell = showNIV ? '<td class="n">'+(sc.notInView==null?'':sc.notInView)+'</td>' : '';
-        tb.appendChild(el('<tr><td class="n num">'+sc.n+'</td><td>'+esc(tstr)+'</td>'+cells+'<td class="n num"><b>'+tot+'</b></td>'+nivCell+'</tr>'));
-      });
-      tbl.appendChild(tb);
-      tp.querySelector(".tablescroll").appendChild(tbl);
-      app.appendChild(tp);
-    }
-
-    // danger
-    var del=el('<button class="btn danger ghost" style="margin-top:18px">Delete session</button>');
-    del.onclick=function(){
-      confirmModal("Delete this session?","This permanently removes "+s.scans.length+" scan"+(s.scans.length===1?"":"s")+". Export first if you need the data.","Delete", function(){
-        state.sessions=state.sessions.filter(function(x){return x.id!==s.id;});
-        persist(); go("home"); toast("Session deleted");
-      }, true);
-    };
-    app.appendChild(del);
+    panel.querySelector("#tauto").addEventListener("change", e=> autoAdvance=e.target.checked);
   }
-  function statBlock(v,l){ return '<div><div class="num" style="font-family:var(--disp);font-weight:600;font-size:24px">'+v+'</div><div style="font-size:12px;color:var(--ink-2)">'+l+'</div></div>'; }
-
-  // ---------- SETTINGS ----------
-  function renderSettings(app){
-    app.appendChild(el('<h1 class="page">Settings</h1>'));
-    app.appendChild(el('<p class="sub">Your species, institutions, groups, and the standard behaviour list.</p>'));
-
-    app.appendChild(el('<div class="rowlabel">Species</div>'));
-    var spPanel=el('<div class="panel pad"></div>');
-    state.species.forEach(function(sp,i){
-      var r=el('<div class="editrow"></div>');
-      var inp=el('<input value="'+esc(sp)+'" placeholder="Species name" autocomplete="off">');
-      inp.oninput=function(){ state.species[i]=inp.value; };
-      inp.onblur=function(){ state.species[i]=inp.value.trim()||("Species "+String.fromCharCode(65+i)); persist(); };
-      var swatch=el('<div style="width:14px;height:14px;border-radius:4px;flex:none;background:'+speciesColor(sp)+'"></div>');
-      r.appendChild(swatch); r.appendChild(inp); spPanel.appendChild(r);
-    });
-    app.appendChild(spPanel);
-    var addSp=el('<button class="btn small ghost" style="margin-top:8px">＋ Add species</button>');
-    addSp.onclick=function(){ state.species.push("Species "+String.fromCharCode(65+state.species.length)); persist(); go("settings"); };
-    app.appendChild(addSp);
-    app.appendChild(el('<p class="sub" style="margin-top:8px;font-size:12px">Rename to your study species. Renaming here does not change species already saved on past sessions.</p>'));
-
-    app.appendChild(el('<div class="rowlabel">Institutions</div>'));
-    var instPanel=el('<div class="panel pad"></div>');
-    var instWrap=el('<div></div>'); instPanel.appendChild(instWrap);
-    renderStringList(instWrap, state.institutions, persist, "e.g. Zoo Zürich");
-    var addInst=el('<button class="btn small ghost" style="margin-top:4px">＋ Add institution</button>');
-    addInst.onclick=function(){ state.institutions.push(""); persist(); go("settings"); };
-    instPanel.appendChild(addInst);
-    app.appendChild(instPanel);
-
-    app.appendChild(el('<div class="rowlabel">Groups</div>'));
-    var grpPanel=el('<div class="panel pad"></div>');
-    var grpWrap=el('<div></div>'); grpPanel.appendChild(grpWrap);
-    renderGroupList(grpWrap);
-    app.appendChild(grpPanel);
-    app.appendChild(el('<p class="sub" style="margin-top:8px;font-size:12px">Each group belongs to one species at one institution. Create groups when you start a session; reuse them so every session for a group shares the same label.</p>'));
-
-    app.appendChild(el('<div class="rowlabel">Default behaviours</div>'));
-    var ethPanel=el('<div class="panel pad"></div>');
-    var listWrap=el('<div id="s-eth"></div>'); ethPanel.appendChild(listWrap);
-    var redrawEth = renderBehaviourList(listWrap, state.ethogram, persist);
-    var add=el('<button class="btn small ghost" style="margin-top:4px">＋ Add behaviour</button>');
-    add.onclick=function(){ state.ethogram.push({name:"",structured:false}); persist(); redrawEth(); };
-    ethPanel.appendChild(add);
-    app.appendChild(ethPanel);
-    app.appendChild(el('<p class="sub" style="margin-top:8px;font-size:12px">These pre-fill each new session; you can still tweak them per session. Behaviours are stored per session, so editing here never alters recorded data.</p>'));
-
-    app.appendChild(el('<div class="rowlabel">Cues</div>'));
-    var opts=el('<div class="panel pad"></div>');
-    opts.appendChild(toggleRow("Sound + vibration cue","Beep and buzz when a scan is due", state.sound, function(v){ state.sound=v; persist(); }));
-    opts.appendChild(toggleRow("Carry counts between scans","Start each scan from the previous counts instead of zero", state.carry, function(v){ state.carry=v; persist(); }));
-    opts.appendChild(toggleRow("Record animals not in view","Add a per-scan count of animals you can't see", state.trackNIV!==false, function(v){ state.trackNIV=v; persist(); }));
-    app.appendChild(opts);
-
-    app.appendChild(el('<div class="rowlabel">Data</div>'));
-    var dataP=el('<div class="panel pad"></div>');
-    dataP.appendChild(el('<p style="margin:0 0 12px;font-size:13.5px;color:var(--ink-2)">Sessions are stored in this browser on this device. Export to CSV to keep a permanent copy or move data to a computer.</p>'));
-    var expAll=el('<button class="btn small" style="width:100%">Export all sessions (CSV)</button>');
-    expAll.onclick=function(){ if(!state.sessions.length){ toast("No sessions to export"); return;} openExport(state.sessions,"all-sessions"); };
-    dataP.appendChild(expAll);
-    app.appendChild(dataP);
-
-    var done=el('<button class="btn primary" style="margin-top:18px">Done</button>');
-    done.onclick=function(){ go("home"); };
-    app.appendChild(done);
+  function paint(){
+    const f=$("#tface"), b=$("#tbar");
+    if(f) f.textContent = mmss(remaining);
+    if(b) b.style.width = (intervalSec?100*Math.max(0,remaining)/intervalSec:0)+"%";
   }
-
-  // ---------- helpers for sessions ----------
-  function getSession(id){ for(var i=0;i<state.sessions.length;i++) if(state.sessions[i].id===id) return state.sessions[i]; return null; }
-  function groupById(id){ for(var i=0;i<state.groups.length;i++) if(state.groups[i].id===id) return state.groups[i]; return null; }
-
-  function editSessionModal(s){
-    var tmpNewInst=false, instVal=s.institution||"";
-    var bg=el('<div class="modal-bg"></div>');
-    var m=el('<div class="modal"><div class="m-pad"><h3>Edit details</h3>'+
-      '<p class="m-sub">These labels are stored with this session and used in the CSV. Editing them does not change other sessions.</p></div></div>');
-    var pad=m.querySelector(".m-pad");
-    var body=el('<div></div>'); pad.appendChild(body);
-
-    function instOpts(){
-      return '<option value="">— institution —</option>'+
-        (instVal && state.institutions.indexOf(instVal)<0 ? '<option value="'+esc(instVal)+'" selected>'+esc(instVal)+'</option>' : '')+
-        state.institutions.map(function(it){ return '<option value="'+esc(it)+'"'+(it===instVal?' selected':'')+'>'+esc(it)+'</option>'; }).join("")+
-        '<option value="__newinst">＋ New institution…</option>';
-    }
-    function draw(){
-      body.innerHTML="";
-      var spOpts=state.species.map(function(sp){ return '<option value="'+esc(sp)+'"'+(sp===s.species?' selected':'')+'>'+esc(sp)+'</option>'; }).join("")+
-        (s.species && state.species.indexOf(s.species)<0 ? '<option value="'+esc(s.species)+'" selected>'+esc(s.species)+'</option>' : '');
-      body.innerHTML=
-        '<div class="field"><label>Group name</label><input id="e-group" value="'+esc(s.group||"")+'" autocomplete="off"></div>'+
-        '<div class="grid2">'+
-          '<div class="field" style="margin:0"><label>Species</label><select id="e-species">'+spOpts+'</select></div>'+
-          '<div class="field" style="margin:0"><label>Institution</label><select id="e-inst">'+instOpts()+'</select></div>'+
-        '</div>'+
-        (tmpNewInst?'<div class="field" style="margin-top:12px"><label>New institution name</label><input id="e-newinst" placeholder="e.g. Zoo Basel" value="'+esc(instVal)+'" autocomplete="off"></div>':'')+
-        '<div class="grid2" style="margin-top:12px">'+
-          '<div class="field" style="margin:0"><label>Observer</label><input id="e-obs" value="'+esc(s.observer||"")+'" autocomplete="off"></div>'+
-          '<div class="field" style="margin:0"><label>Animals present (N)</label><input id="e-size" type="number" min="0" inputmode="numeric" value="'+(s.nPresent==null?(s.groupSize==null?"":s.groupSize):s.nPresent)+'"></div>'+
-        '</div>';
-      body.querySelector("#e-inst").onchange=function(e){
-        if(e.target.value==="__newinst"){ tmpNewInst=true; instVal=""; draw(); setTimeout(function(){ var n=body.querySelector("#e-newinst"); if(n) n.focus(); },0); }
-        else { instVal=e.target.value; tmpNewInst=false; }
-      };
-      if(tmpNewInst){ var ni=body.querySelector("#e-newinst"); ni.oninput=function(){ instVal=ni.value; }; }
-    }
-    draw();
-
-    var row=el('<div class="btnrow" style="margin-top:16px"></div>');
-    var cancel=el('<button class="btn ghost small" style="flex:1">Cancel</button>');
-    var save=el('<button class="btn primary small" style="flex:1">Save</button>');
-    row.appendChild(cancel); row.appendChild(save); pad.appendChild(row);
-    function close(){ if(bg.parentNode) bg.parentNode.removeChild(bg); }
-    cancel.onclick=close; bg.onclick=function(e){ if(e.target===bg) close(); };
-    save.onclick=function(){
-      s.group=(body.querySelector("#e-group").value||"").trim()||s.group;
-      s.species=body.querySelector("#e-species").value;
-      var inst=(instVal||"").trim();
-      if(inst && state.institutions.indexOf(inst)<0) state.institutions.push(inst);
-      s.institution=inst;
-      s.observer=(body.querySelector("#e-obs").value||"").trim();
-      var sz=parseInt(body.querySelector("#e-size").value,10); s.nPresent=isNaN(sz)?null:sz;
-      persist(); close(); render(); toast("Details updated");
-    };
-    bg.appendChild(m); document.body.appendChild(bg);
-  }
-  function safeName(s){ return String(s||"session").replace(/[^\w\-]+/g,"_").replace(/^_+|_+$/g,"").slice(0,40)||"session"; }
-
-  // ================= CSV / EXPORT =================
-  function csvCell(v){
-    if(v==null) v="";
-    v=String(v);
-    if(/[",\n\r]/.test(v)) v='"'+v.replace(/"/g,'""')+'"';
-    return v;
-  }
-  function buildLong(sessions){
-    var head=["session_id","date","species","group","institution","observer","n_present","scan_interval_s","scan_number","scan_timestamp","not_in_view","behaviour","count","structure","subgroup_size"];
-    var rows=[head.join(",")];
-    sessions.forEach(function(s){
-      var np = s.nPresent!=null ? s.nPresent : (s.groupSize==null?"":s.groupSize);
-      var base=[s.id, isoDate(s.startedAt), s.species, s.group, s.institution||s.location||"", s.observer||"", np, s.interval];
-      s.scans.forEach(function(sc){
-        var niv = sc.notInView==null ? "" : sc.notInView;
-        s.behaviours.forEach(function(b){
-          var name=b.name;
-          if(b.structured){
-            var arr = sc.groups && sc.groups[name] ? sc.groups[name] : [];
-            if(arr.length){
-              arr.forEach(function(g){
-                rows.push(base.concat([sc.n, sc.timestamp, niv, name, g.size, g.type, g.size]).map(csvCell).join(","));
-              });
-            } else {
-              rows.push(base.concat([sc.n, sc.timestamp, niv, name, 0, "", ""]).map(csvCell).join(","));
-            }
-          } else {
-            rows.push(base.concat([sc.n, sc.timestamp, niv, name, (sc.counts[name]||0), "", ""]).map(csvCell).join(","));
-          }
-        });
-      });
-    });
-    return rows.join("\r\n");
-  }
-  function buildWide(sessions){
-    // union of behaviours across included sessions
-    var behs=[]; sessions.forEach(function(s){ s.behaviours.forEach(function(b){ if(behs.indexOf(b.name)<0) behs.push(b.name); }); });
-    var head=["session_id","date","species","group","institution","observer","n_present","scan_interval_s","scan_number","scan_timestamp","not_in_view"].concat(behs).concat(["total"]);
-    var rows=[head.map(csvCell).join(",")];
-    sessions.forEach(function(s){
-      var np = s.nPresent!=null ? s.nPresent : (s.groupSize==null?"":s.groupSize);
-      var base=[s.id, isoDate(s.startedAt), s.species, s.group, s.institution||s.location||"", s.observer||"", np, s.interval];
-      s.scans.forEach(function(sc){
-        var niv = sc.notInView==null ? "" : sc.notInView;
-        var tot=0; for(var k in sc.counts) tot+=sc.counts[k];
-        var cells=behs.map(function(b){ return (b in sc.counts)? sc.counts[b] : ""; });
-        rows.push(base.concat([sc.n, sc.timestamp, niv]).concat(cells).concat([tot]).map(csvCell).join(","));
-      });
-    });
-    return rows.join("\r\n");
-  }
-  function isoDate(iso){ try{ return new Date(iso).toISOString().slice(0,10); }catch(e){ return ""; } }
-
-  function openExport(sessions, nameBase){
-    var nScans=0; sessions.forEach(function(s){ nScans+=s.scans.length; });
-    if(nScans===0){ toast("Nothing to export yet"); return; }
-    var fmt="long";
-    var bg=el('<div class="modal-bg"></div>');
-    var m=el('<div class="modal"><div class="m-pad">'+
-      '<h3>Export CSV</h3>'+
-      '<p class="m-sub">'+sessions.length+' session'+(sessions.length===1?"":"s")+' · '+nScans+' scan'+(nScans===1?"":"s")+'. Long format has one row per behaviour per scan (best for analysis). Wide has one row per scan.</p>'+
-      '<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><span style="font-size:13px;color:var(--ink-2)">Format</span>'+
-        '<div class="seg" id="fmtseg"><button data-f="long" class="on">Long (tidy)</button><button data-f="wide">Wide</button></div></div>'+
-      '<textarea class="csv" id="csvout" readonly></textarea>'+
-      '</div></div>');
-    var pad=m.querySelector(".m-pad");
-    var actions=el('<div class="btnrow" style="margin-top:14px"></div>');
-    var dl=el('<button class="btn primary small" style="flex:1">Download .csv</button>');
-    var cp=el('<button class="btn small" style="flex:1">Copy</button>');
-    var cl=el('<button class="btn ghost small" style="flex:1">Close</button>');
-    actions.appendChild(dl); actions.appendChild(cp); actions.appendChild(cl);
-    pad.appendChild(actions);
-
-    function refresh(){
-      var text = fmt==="long"? buildLong(sessions) : buildWide(sessions);
-      m.querySelector("#csvout").value=text;
-      return text;
-    }
-    m.querySelector("#fmtseg").addEventListener("click", function(e){
-      var b=e.target.closest("button"); if(!b) return;
-      fmt=b.getAttribute("data-f");
-      Array.prototype.forEach.call(m.querySelectorAll("#fmtseg button"), function(x){ x.classList.toggle("on", x===b); });
-      refresh();
-    });
-    refresh();
-
-    dl.onclick=function(){ doDownload(nameBase+"-"+fmt+".csv", m.querySelector("#csvout").value); };
-    cp.onclick=function(){
-      var ta=m.querySelector("#csvout"); ta.select();
-      var ok=false;
-      if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(ta.value).then(function(){ toast("Copied to clipboard"); }).catch(function(){ try{document.execCommand("copy"); toast("Copied");}catch(e){} }); }
-      else { try{ document.execCommand("copy"); toast("Copied"); }catch(e){ toast("Select all and copy manually"); } }
-    };
-    cl.onclick=close; bg.onclick=function(e){ if(e.target===bg) close(); };
-    function close(){ if(bg.parentNode) bg.parentNode.removeChild(bg); }
-    bg.appendChild(m); document.body.appendChild(bg);
-  }
-
-  function doDownload(filename, text){
-    // Preferred: platform downloads capability (published Artifact). Fallback: the copy box already visible.
-    if(window.claude && typeof window.claude.use==="function"){
-      window.claude.use("downloads").then(function(dl){
-        if(!dl){ browserDownload(filename, text); return; }
-        dl.save({ filename: filename, data: text }).then(function(r){
-          toast("Saved "+filename);
-        }).catch(function(err){
-          var code=err&&err.code;
-          if(code==="declined"){ /* user cancelled — do nothing */ }
-          else if(code==="rate_limited"){ toast("Try the download again in a moment"); }
-          else { browserDownload(filename, text); }
-        });
-      }).catch(function(){ browserDownload(filename, text); });
-    } else {
-      browserDownload(filename, text);
+  function tick(){
+    remaining--; paint();
+    if(remaining<=0){
+      beep(); const card=$("#timerPanel")?.closest(".card"); if(card){ card.classList.remove("due"); void card.offsetWidth; card.classList.add("due"); }
+      if(autoAdvance){ remaining=intervalSec; nextScan(); }
+      else { running=false; if(handle){clearInterval(handle);handle=null;} remaining=0; toast("Scan due — advance when ready"); mountSafe(); }
     }
   }
-  function browserDownload(filename, text){
-    try{
-      var blob=new Blob([text],{type:"text/csv;charset=utf-8"});
-      var url=URL.createObjectURL(blob);
-      var a=document.createElement("a"); a.href=url; a.download=filename; document.body.appendChild(a); a.click();
-      setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 100);
-      toast("Downloaded "+filename);
-    }catch(e){ toast("Use the Copy button to get your data"); }
+  function toggle(){
+    if(running){ running=false; if(handle){clearInterval(handle);handle=null;} }
+    else { if(remaining<=0) remaining=intervalSec; running=true; handle=setInterval(tick,1000); }
+    mountSafe();
   }
-
-  // ---------- confirm modal ----------
-  function confirmModal(title, body, okLabel, onOk, danger){
-    var bg=el('<div class="modal-bg"></div>');
-    var m=el('<div class="modal"><div class="m-pad"><h3>'+esc(title)+'</h3><p class="m-sub">'+esc(body)+'</p></div></div>');
-    var pad=m.querySelector(".m-pad");
-    var row=el('<div class="btnrow"></div>');
-    var cancel=el('<button class="btn ghost small" style="flex:1">Cancel</button>');
-    var ok=el('<button class="btn small '+(danger?'danger':'primary')+'" style="flex:1">'+esc(okLabel)+'</button>');
-    if(danger){ ok.classList.remove("primary"); }
-    if(!danger){ ok.classList.add("primary"); }
-    row.appendChild(cancel); row.appendChild(ok); pad.appendChild(row);
-    function close(){ if(bg.parentNode) bg.parentNode.removeChild(bg); }
-    cancel.onclick=close; bg.onclick=function(e){ if(e.target===bg) close(); };
-    ok.onclick=function(){ close(); onOk(); };
-    bg.appendChild(m); document.body.appendChild(bg);
-  }
-
-  // ---------- boot ----------
-  render();
+  function reset(){ remaining=intervalSec; if(!running){} paint(); mountSafe(); }
+  function mountSafe(){ if(state.activeTab==="record" && curSession()) mount(); }
+  function setDefault(v){ intervalSec=v; if(!running) remaining=v; }
+  return { mount, toggle, reset, setDefault, mountSafe };
 })();
+
+function beep(){
+  try{
+    const Ctx = window.AudioContext||window.webkitAudioContext; if(!Ctx) return;
+    const ctx = new Ctx(); const o=ctx.createOscillator(), g=ctx.createGain();
+    o.type="sine"; o.frequency.value=880; o.connect(g); g.connect(ctx.destination);
+    g.gain.setValueAtTime(0.001,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.25,ctx.currentTime+0.02);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.5);
+    o.start(); o.stop(ctx.currentTime+0.5); setTimeout(()=>ctx.close(),700);
+  }catch(e){}
+}
+function flashLog(){ const c=$("#chips"); if(c){ /* chip pop handles it */ } }
+
+/* ============================ EXPORT ============================ */
+function csvCell(v){ v = v==null?"":String(v); return /[",\n\r]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+function toCSV(rows){ return rows.map(r=>r.map(csvCell).join(",")).join("\r\n"); }
+
+function eventsCSV(){
+  const head = ["session_id","species","group","institution","observer","date","scan_number","event_time","event_id","grooming_type","polyadic_subtype","n_individuals","participants","notes"];
+  const rows = [head];
+  state.sessions.forEach(s=> s.events.forEach(e=>{
+    const n = e.type==="dyadic" ? 2 : (parseInt(e.size,10)||"");
+    rows.push([s.id,s.species,s.group,s.institution||"",s.observer,s.date,e.scan,e.time,e.id,e.type,e.type==="polyadic"?(e.subtype||"cluster"):"",n,e.participants,e.notes]);
+  }));
+  return toCSV(rows);
+}
+function scansCSV(){
+  const head = ["session_id","species","group","institution","date","scan_number","n_not_in_view","group_N_today","n_in_view","n_bouts","n_dyadic","n_polyadic","n_cluster","n_chain"];
+  const rows = [head];
+  state.sessions.forEach(s=>{
+    const per = {};
+    s.events.forEach(e=>{
+      const k=e.scan; if(!per[k]) per[k]={b:0,dy:0,po:0,cl:0,ch:0};
+      per[k].b++;
+      if(e.type==="dyadic") per[k].dy++;
+      else { per[k].po++; if(e.subtype==="chain") per[k].ch++; else per[k].cl++; }
+    });
+    const N = (s.groupN!=null) ? s.groupN : null;
+    for(let k=1;k<=s.currentScan;k++){
+      const raw = s.scanOOV ? s.scanOOV[k] : undefined;
+      const oov = (raw===undefined||raw===null||raw==="") ? "" : Math.max(0, parseInt(raw,10)||0);
+      const inView = (N!=null) ? Math.max(0, N - (oov===""?0:oov)) : "";
+      const p = per[k] || {b:0,dy:0,po:0,cl:0,ch:0};
+      rows.push([s.id,s.species,s.group,s.institution||"",s.date,k,oov,(N!=null?N:""),inView,p.b,p.dy,p.po,p.cl,p.ch]);
+    }
+  });
+  return toCSV(rows);
+}
+function summaryCSV(){
+  const head = ["species","group","institution","sessions","total_scans","total_bouts","dyadic","polyadic","polyadic_cluster","polyadic_chain","mean_cluster_size","mean_chain_size"];
+  const rows = [head];
+  groupSummary().forEach(g=>{
+    const cm = g.clN ? Math.round(g.clSum/g.clN*100)/100 : "";
+    const hm = g.chN ? Math.round(g.chSum/g.chN*100)/100 : "";
+    rows.push([g.species,g.group,g.institution,g.sessions,g.scans,g.events,g.dyadic,g.cluster+g.chain,g.cluster,g.chain,cm,hm]);
+  });
+  return toCSV(rows);
+}
+function sessionsCSV(){
+  const head = ["session_id","species","group","institution","observer","date","started_at","duration_sec","duration_hms","group_N_today","grooming_scans","dyadic","polyadic","polyadic_cluster","polyadic_chain","start_n_subgroups","start_individuals","end_n_subgroups","end_individuals"];
+  const rows = [head];
+  state.sessions.forEach(s=>{
+    const t = totals(s), dur = Math.round(sessElapsed(s));
+    const cs = censusSub(s.census&&s.census.start), ce = censusSub(s.census&&s.census.end);
+    rows.push([s.id,s.species,s.group,s.institution||"",s.observer,s.date,s.startedAt||"",dur,fmtDur(dur),(s.groupN!=null?s.groupN:""),t.scans,t.dyadic,t.polyadic,t.cluster,t.chain,cs.n,cs.total,ce.n,ce.total]);
+  });
+  return toCSV(rows);
+}
+function censusCSV(){
+  const head = ["session_id","species","group","institution","date","phase","census_time","n_subgroups","subgroup_index","subgroup_size"];
+  const rows = [head];
+  state.sessions.forEach(s=>{
+    ["start","end"].forEach(ph=>{
+      const c = s.census && s.census[ph]; const sizes = (c&&c.sizes)||[];
+      sizes.forEach((sz,i)=> rows.push([s.id,s.species,s.group,s.institution||"",s.date,ph,(c&&c.time)||"",sizes.length,i+1,sz]));
+    });
+  });
+  return toCSV(rows);
+}
+
+async function offerFile(filename, text){
+  // 1) claude.ai hosted downloads capability, when present
+  try{
+    if(window.claude && typeof window.claude.use==="function"){
+      const dl = await window.claude.use("downloads");
+      if(dl){
+        try{ await dl.save({filename, data:text}); toast("Saved "+filename); return; }
+        catch(err){ if(err && err.code==="declined"){ return; } /* else fall through */ }
+      }
+    }
+  }catch(e){}
+  // 2) standard blob download (works when run locally / most hosts)
+  try{
+    const blob = new Blob([text], {type:"text/plain;charset=utf-8"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href=url; a.download=filename;
+    document.body.appendChild(a); a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 120);
+    toast("Downloaded "+filename); return;
+  }catch(e){}
+  // 3) last resort — show text so nothing is ever trapped
+  showModal(filename, "Copy this and save it as "+filename, text);
+}
+function stamp(){ return todayStr().replace(/-/g,""); }
+
+/* ============================ MODAL / TOAST ============================ */
+let toastTimer=null;
+function toast(msg, kind){
+  const t=$("#toast"); t.textContent=msg; t.className = kind==="err"?"err show":"show";
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=> t.classList.remove("show"), 2200);
+}
+let modalText="";
+function showModal(title,msg,text){
+  modalText=text; $("#modalTitle").textContent=title; $("#modalMsg").textContent=msg||"";
+  $("#modalText").value=text; $("#modal").classList.add("show");
+}
+function closeModal(){ $("#modal").classList.remove("show"); }
+async function copyModal(){
+  try{ await navigator.clipboard.writeText(modalText); toast("Copied"); }
+  catch(e){ const ta=$("#modalText"); ta.focus(); ta.select(); try{document.execCommand("copy"); toast("Copied");}catch(_){ toast("Press Ctrl/Cmd-C","err"); } }
+}
+
+/* ============================ EVENTS ============================ */
+document.addEventListener("click", e=>{
+  if(e.target.id==="endmodal"){ e.target.classList.remove("show"); return; }
+  if(e.target.id==="modal"){ e.target.classList.remove("show"); return; }
+  const tab = e.target.closest(".tab");
+  if(tab){ state.activeTab=tab.dataset.tab; save(); render(); return; }
+  if(e.target.closest("#themeBtn")){ toggleTheme(); return; }
+
+  const el = e.target.closest("[data-action]"); if(!el) return;
+  const a = el.dataset.action;
+  switch(a){
+    case "log": addEvent(el.dataset.type, el.dataset.sub||null); break;
+    case "arm": armed = {subtype:el.dataset.sub, size:(armed&&armed.subtype===el.dataset.sub?armed.size:3)}; render(); break;
+    case "arm-log": addEvent("polyadic", armed?armed.subtype:el.dataset.sub, el.dataset.size); break;
+    case "arm-inc": if(armed){ armed.size++; render(); } break;
+    case "arm-dec": if(armed){ armed.size=Math.max(3,armed.size-1); render(); } break;
+    case "arm-cancel": armed=null; render(); break;
+    case "rm": removeEvent(el.dataset.id); break;
+    case "next-scan": nextScan(); break;
+    case "sess-toggle": { const s=curSession(); if(s){ if(s.runningSince) sessPause(s); else sessResume(s); save(); render(); } break; }
+    case "census-edit": censusEdit[el.dataset.phase]=true; render(); break;
+    case "census-done": censusEdit[el.dataset.phase]=false; render(); break;
+    case "census-add": { const s=curSession(); if(s){ const c=s.census[el.dataset.phase]; c.sizes.push(1); if(!c.time) c.time=nowISO(); censusEdit[el.dataset.phase]=true; save(); render(); } break; }
+    case "census-del": { const s=curSession(); if(s){ s.census[el.dataset.phase].sizes.splice(+el.dataset.idx,1); save(); render(); } break; }
+    case "start-session": startSession(); break;
+    case "end-session": endSession(); break;
+    case "end-session": finishSession(); break;
+    case "switch-session": endSession(); break;
+    case "end-cancel": document.getElementById("endmodal").classList.remove("show"); break;
+    case "end-anyway": document.getElementById("endmodal").classList.remove("show"); endSession(); toast("Session ended"); break;
+    case "end-record": {
+      document.getElementById("endmodal").classList.remove("show");
+      censusEdit.end=true; render();
+      setTimeout(()=>{ const el=document.getElementById("endCensus"); if(el) el.scrollIntoView({behavior:"smooth",block:"center"}); }, 60);
+      break;
+    }
+    case "resume": resumeSession(el.dataset.id); break;
+    case "del-session": deleteSession(el.dataset.id); break;
+    case "goto-settings": state.activeTab="settings"; save(); render(); break;
+    case "timer-toggle": Timer.toggle(); break;
+    case "timer-reset": Timer.reset(); break;
+    case "species-add": commitConfigInputs(); state.speciesList.push({name:"",groups:[]}); save(); render(); break;
+    case "species-del": {
+      commitConfigInputs();
+      const si = +el.dataset.si;
+      if(state.speciesList.length<=1) break;
+      const sp = state.speciesList[si]; const nm = sp ? sp.name : "";
+      const used = state.sessions.filter(s=>s.species===nm).length;
+      if(used>0 && !confirm('"'+(nm||("Species "+(si+1)))+'" has '+used+' recorded session'+(used===1?"":"s")+'. Removing it keeps that data but it will no longer be selectable. Remove it?')) break;
+      state.speciesList.splice(si,1); save(); render(); break;
+    }
+    case "group-add": {
+      commitConfigInputs();
+      const sp = state.speciesList[+el.dataset.si];
+      if(sp){ if(!Array.isArray(sp.groups)) sp.groups=[]; sp.groups.push({name:"",institution:""}); }
+      save(); render(); break;
+    }
+    case "group-del": {
+      commitConfigInputs();
+      const sp = state.speciesList[+el.dataset.si]; if(!sp) break;
+      const gi = +el.dataset.gi, g = sp.groups[gi];
+      const used = state.sessions.filter(s=>s.species===sp.name && s.group===(g&&g.name)).length;
+      if(used>0 && !confirm('Group "'+((g&&g.name)||"")+'" has '+used+' recorded session'+(used===1?"":"s")+'. Removing it keeps that data but it will no longer be selectable. Remove it?')) break;
+      sp.groups.splice(gi,1); save(); render(); break;
+    }
+    case "save-config": {
+      commitConfigInputs();
+      state.speciesList = state.speciesList.map((s,i)=>({
+        name: (s.name||"").trim() || ("Species "+(i+1)),
+        groups: (s.groups||[]).map(g=>({name:(g.name||"").trim(), institution:(g.institution||"").trim()})).filter(g=>g.name)
+      }));
+      save(); toast("Saved"); render(); break;
+    }
+    case "save-interval": {
+      const v=Math.max(5, parseInt($("#def-interval").value,10)||state.defaultInterval);
+      state.defaultInterval=v; Timer.setDefault(v); save(); toast("Interval saved"); break;
+    }
+    case "export-events": offerFile("grooming_bouts_"+stamp()+".csv", eventsCSV()); break;
+    case "export-scans": offerFile("grooming_scans_"+stamp()+".csv", scansCSV()); break;
+    case "export-sessions": offerFile("grooming_sessions_"+stamp()+".csv", sessionsCSV()); break;
+    case "export-summary": offerFile("grooming_group_summary_"+stamp()+".csv", summaryCSV()); break;
+    case "export-census": offerFile("grooming_subgroup_census_"+stamp()+".csv", censusCSV()); break;
+    case "export-backup": offerFile("grooming_backup_"+stamp()+".json", JSON.stringify(state,null,2)); break;
+    case "clear-all":
+      if(confirm("Erase ALL sessions and bouts from this browser? This cannot be undone.\nExport a backup first if you want to keep the data.")){
+        state = defaultState(); save(); toast("All data erased"); render();
+      }
+      break;
+    case "modal-close": closeModal(); break;
+    case "modal-copy": copyModal(); break;
+  }
+});
+
+document.addEventListener("change", e=>{
+  const sn = e.target.closest("[data-session-n]");
+  if(sn){ const s=curSession(); if(s){ const v=sn.value.trim(); s.groupN = v===""?null:Math.max(0,parseInt(v,10)||0); save(); render(); } return; }
+  const oov = e.target.closest("[data-scan-oov]");
+  if(oov){ const s=curSession(); if(s){ const v=oov.value.trim(); if(!s.scanOOV) s.scanOOV={};
+    if(v==="") delete s.scanOOV[s.currentScan]; else s.scanOOV[s.currentScan]=Math.max(0,parseInt(v,10)||0);
+    save(); render(); } return; }
+  const cen = e.target.closest("input[data-census]");
+  if(cen){ const s=curSession(); if(s){ const arr=s.census[cen.dataset.census].sizes; arr[+cen.dataset.idx]=Math.max(1,parseInt(cen.value,10)||1); save(); render(); } return; }
+  const inp = e.target.closest("input[data-edit]");
+  if(inp){ editField(inp.dataset.id, inp.dataset.edit, inp.value); if(inp.dataset.edit==="size") render(); return; }
+  const file = e.target.closest("#import-file");
+  if(file && file.files && file.files[0]){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const p = JSON.parse(reader.result);
+        if(!p || typeof p!=="object" || !Array.isArray(p.sessions)) throw new Error("bad");
+        if(!confirm("Replace all current data with this backup? "+p.sessions.length+" session(s) will be loaded.")) return;
+        state = Object.assign(defaultState(), migrateLegacy(p)); if(!Array.isArray(state.sessions)) state.sessions=[]; normConfig(); state.sessions.forEach(normSession); state.currentSessionId=null; applyTheme(); save(); render(); toast("Backup restored");
+      }catch(err){ toast("That file isn't a valid backup","err"); }
+    };
+    reader.readAsText(file.files[0]);
+  }
+});
+
+/* ============================ INIT ============================ */
+load(); applyTheme(); Timer.setDefault(state.defaultInterval);
+if(!["record","summary","data","settings"].includes(state.activeTab)) state.activeTab="record";
+render();
+
+// live whole-session clock (updates the display only; state math is timestamp-based)
+setInterval(()=>{
+  const el = document.getElementById("sessClock"); if(!el) return;
+  const s = curSession(); if(!s || !s.runningSince) return;
+  el.textContent = fmtDur(sessElapsed(s));
+}, 1000);
 </script>
 </body>
 </html>
